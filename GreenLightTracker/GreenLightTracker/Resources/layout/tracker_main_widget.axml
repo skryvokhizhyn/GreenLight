@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center">
+<!--<Button
+        android:id="@+id/db_page_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:text="DB page"
+        android:onClick="DBPageButtonClick" />-->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+        <Button
+            android:id="@+id/exit_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="Exit"
+            android:onClick="OnExitButtonClick" />
+        <Button
+            android:id="@+id/stop_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:enabled="false"
+            android:text="Stop"
+            android:onClick="OnStopButtonClick" />
+        <Button
+            android:id="@+id/collect_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="Collect"
+            android:onClick="OnCollectButtonClick" />
+        <Button
+            android:text="Track"
+            android:id="@+id/track_button"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:onClick="OnTrackButtonClick" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+        <Button
+            android:id="@+id/db_clean_up_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="Clean up DB"
+            android:onClick="OnDBCleanupButtonClick" />
+        <Button
+            android:id="@+id/db_backup_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="Backup DB"
+            android:onClick="OnDBBackupButtonClick" />
+        <Button
+            android:id="@+id/row_count_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="Row count"
+            android:onClick="OnRowCountButtonClick" />
+        <Button
+            android:text="Draw"
+            android:id="@+id/draw_button"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:onClick="OnDrawButtonClick" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="left">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Total: " />
+        <TextView
+            android:id="@+id/row_count_total_text"
+            android:background="#ffffff"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:text="N/A" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Filtered: " />
+        <TextView
+            android:id="@+id/row_count_filtered_text"
+            android:background="#ffffff"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:text="N/A" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Taken: " />
+        <TextView
+            android:id="@+id/row_count_taken_text"
+            android:background="#ffffff"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:text="N/A" />
+    </LinearLayout>
+    <GreenLightTracker.Src.PathView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/path_view" />
+</LinearLayout>
