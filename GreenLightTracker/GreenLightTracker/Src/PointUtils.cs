@@ -15,13 +15,13 @@ namespace GreenLightTracker.Src
             return new GpsCoordinate() { x = to.x - from.x, y = to.y - from.y, z = to.z - from.z };
         }
 
-        public static bool CheckColinear(GpsCoordinate v1, GpsCoordinate v2, float tolerance)
+        public static double GetAngleBetween(GpsCoordinate v1, GpsCoordinate v2)
         {
             var len1 = Math.Sqrt(Math.Pow(v1.x, 2) + Math.Pow(v1.y, 2));
             var len2 = Math.Sqrt(Math.Pow(v2.x, 2) + Math.Pow(v2.y, 2));
 
             if (len1 == 0.0 || len2 == 0.0)
-                return false;
+                return Double.NaN;
 
             var x1 = v1.x / len1;
             var x2 = v2.x / len2;
@@ -32,11 +32,16 @@ namespace GreenLightTracker.Src
             var angleV2 = Math.Atan2(y2, x2);
 
             if (Double.IsNaN(angleV1) || Double.IsNaN(angleV2))
-                return false;
+                return Double.NaN;
 
-            double angleDegrees = (angleV2 - angleV1) * 180.0 / Math.PI;
+            return (angleV2 - angleV1) * 180.0 / Math.PI;
+        }
 
-            return Math.Abs(angleDegrees) <= tolerance;
+        public static bool CheckColinear(GpsCoordinate v1, GpsCoordinate v2, float tolerance)
+        {
+            var angleBetween = GetAngleBetween(v1, v2);
+
+            return Math.Abs(angleBetween) <= tolerance;
         }
 
         public static void EnrichWithIntemediatePoints(ICollection<PathData> paths, float pointsStep)

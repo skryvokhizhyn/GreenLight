@@ -84,6 +84,7 @@
     <Compile Include="Src\PathView.cs" />
     <Compile Include="Src\PathMapper.cs" />
     <Compile Include="Src\PointUtils.cs" />
+    <Compile Include="Src\RoadInformation.cs" />
     <Compile Include="Src\RoadSplitter.cs" />
     <Compile Include="Src\RoadTracker.cs" />
   </ItemGroup>

@@ -51,29 +51,29 @@ namespace GreenLightTracker.Src
             return result;
         }
 
-        //public static PathPoint CreateFromPoints(ICollection<GpsCoordinate> points, int pathId)
-        //{
-        //    PathPoint result = null;
-        //    PathPoint prev = null;
+        public static PathPoint CreateFromPoints(ICollection<GpsCoordinate> points, int pathId)
+        {
+            PathPoint result = null;
+            PathPoint prev = null;
 
-        //    foreach (var point in points)
-        //    {
-        //        var pathPoint = new PathPoint() { Point = point, PathId = pathId };
+            foreach (var point in points)
+            {
+                var pathPoint = new PathPoint() { Point = point, PathId = pathId };
 
-        //        if (result == null)
-        //        {
-        //            result = pathPoint;
-        //        }
-        //        else
-        //        {
-        //            PathPoint.AddAfter(prev, pathPoint);
-        //        }
+                if (result == null)
+                {
+                    result = pathPoint;
+                }
+                else
+                {
+                    PathPoint.AddAfter(prev, pathPoint);
+                }
 
-        //        prev = pathPoint;
-        //    }
+                prev = pathPoint;
+            }
 
-        //    return result;
-        //}
+            return result;
+        }
 
         //private static PathPoint AddAfter(PathPoint anchorPoint, GpsCoordinate point)
         //{

@@ -1,31 +1,76 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace GreenLightTracker.Src
 {
     public class RoadTracker
     {
-        private readonly PathMapper m_mapper = null;
-        private IList<PathPoint> m_neighbors = null;
+        private PathMapper m_mapper = null;
+        private List<PathPoint> m_neighbors = null;
         private GpsCoordinate m_previousPoint = null;
 
-        public RoadTracker(PathMapper mapper)
+        public delegate void NewPathPointHandler(PathPoint p);
+        public event NewPathPointHandler PathPointFound;
+
+        public RoadTracker(PathMapper mapper = null)
         {
             m_mapper = mapper;
         }
 
-        public void TrackPoint(GpsCoordinate point)
+        public void SetMapper(PathMapper mapper)
         {
-            CleanupNeighbors(m_neighbors, m_previousPoint, point);
+            m_mapper = mapper;
+        }
 
-            if (m_neighbors == null || m_neighbors.Count == 0)
+        public bool IsInitialized()
+        {
+            return m_mapper != null;
+        }
+
+        public void OnGpsLocationReceived(GpsLocation point)
+        {
+            TrackPointAndNotify(GpsUtils.GetCoordinateFromLocation(point));
+        }
+
+        public PathPoint TrackPoint(GpsCoordinate point)
+        {
+            if (point == null)
+                return null;
+
+            if (m_previousPoint != null)
             {
-                m_neighbors = m_mapper.GetNearestPointsFiltered(point);
+                CleanupNeighbors(m_neighbors, m_previousPoint, point, m_mapper.GetTolerance());
+
+                if (m_neighbors == null || m_neighbors.Count == 0)
+                {
+                    m_neighbors = m_mapper.GetNearestPointsFiltered(point);
+                }
+                else
+                {
+                    PromoteNeighbors(m_neighbors, point);
+                }
             }
 
             m_previousPoint = point;
+
+            if (m_neighbors == null || m_neighbors.Count == 0)
+            {
+                return null;
+            }
+            else
+            {
+                return GetClosestNeighbor();
+            }
         }
 
-        public static void CleanupNeighbors(IList<PathPoint> neighbors, GpsCoordinate currentPoint, GpsCoordinate nextPoint)
+        public void TrackPointAndNotify(GpsCoordinate point)
+        {
+            var pathPoint = TrackPoint(point);
+
+            PathPointFound(pathPoint);
+        }
+
+        public static void CleanupNeighbors(IList<PathPoint> neighbors, GpsCoordinate currentPoint, GpsCoordinate nextPoint, float tolerance)
         {
             if (neighbors == null)
                 return;
@@ -44,7 +89,7 @@ namespace GreenLightTracker.Src
                 }
 
                 // Remove too distant points
-                if (PointUtils.GetDistance(p.Next.Point, nextPoint) > 10)
+                if (PointUtils.GetDistance(p.Next.Point, nextPoint) > tolerance)
                 {
                     neighbors.RemoveAt(i);
                     continue;
@@ -66,12 +111,48 @@ namespace GreenLightTracker.Src
             }
         }
 
-        public static void PromoteNeighbors(IList<PathPoint> neighbors, GpsCoordinate point)
+        public static void PromoteNeighbors(List<PathPoint> neighbors, GpsCoordinate point)
         {
+            if (neighbors == null || point == null)
+                return;
+
             for (var i = 0; i < neighbors.Count; ++i)
             {
-                neighbors[i] = neighbors[i].Next;
+                var neighbor = neighbors[i];
+                while (neighbor != null)
+                {
+                    if (neighbor.Next == null)
+                    {
+                        neighbor = null;
+                        break;
+                    }
+
+                    var v1 = new GpsCoordinate
+                    {
+                        x = neighbor.Next.Point.x - point.x,
+                        y = neighbor.Next.Point.y - point.y,
+                        z = neighbor.Next.Point.z - point.z
+                    };
+
+                    var v2 = new GpsCoordinate
+                    {
+                        x = neighbor.Next.Point.x - neighbor.Point.x,
+                        y = neighbor.Next.Point.y - neighbor.Point.y,
+                        z = neighbor.Next.Point.z - neighbor.Point.z
+                    };
+
+                    var angle = PointUtils.GetAngleBetween(v1, v2);
+
+                    if (Math.Abs(angle) < 90)
+                        break;
+
+                    neighbor = neighbor.Next;
+                }
+
+                neighbors[i] = neighbor;
             }
+
+            neighbors.RemoveAll(n => n == null);
         }
 
         public IList<PathPoint> GetNeighbors(bool sorted)
@@ -99,10 +180,14 @@ namespace GreenLightTracker.Src
             return m_neighbors;
         }
 
-        public IEnumerable<int> GetFollowedRoads()
+        public PathPoint GetClosestNeighbor()
         {
+            var neighbors = GetNeighbors(true);
 
-            return null;
+            if (neighbors == null || neighbors.Count == 0)
+                return null;
+
+            return neighbors[0];
         }
     }
 }

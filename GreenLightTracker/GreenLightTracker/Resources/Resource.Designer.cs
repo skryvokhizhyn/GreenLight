@@ -62,8 +62,8 @@ namespace GreenLightTracker
 			// aapt resource value: 0x7f040003
 			public const int exit_button = 2130968579;
 			
-			// aapt resource value: 0x7f04000d
-			public const int path_view = 2130968589;
+			// aapt resource value: 0x7f04000e
+			public const int path_view = 2130968590;
 			
 			// aapt resource value: 0x7f040002
 			public const int row_count_button = 2130968578;
@@ -79,6 +79,9 @@ namespace GreenLightTracker
 			
 			// aapt resource value: 0x7f04000a
 			public const int row_count_total_text = 2130968586;
+			
+			// aapt resource value: 0x7f04000d
+			public const int row_road_id_text = 2130968589;
 			
 			// aapt resource value: 0x7f040004
 			public const int stop_button = 2130968580;

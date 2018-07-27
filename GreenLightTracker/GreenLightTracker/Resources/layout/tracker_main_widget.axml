@@ -113,6 +113,16 @@
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
             android:text="N/A" />
+      <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="RoadId: " />
+      <TextView
+          android:id="@+id/row_road_id_text"
+          android:background="#ffffff"
+          android:layout_width="wrap_content"
+          android:layout_height="fill_parent"
+          android:text="N/A" />
     </LinearLayout>
     <GreenLightTracker.Src.PathView
         android:layout_width="match_parent"

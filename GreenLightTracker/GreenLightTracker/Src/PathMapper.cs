@@ -19,6 +19,19 @@ namespace GreenLightTracker.Src
             m_tolerance = tolerance;
         }
 
+        public float GetTolerance()
+        {
+            return m_tolerance;
+        }
+
+        public void PutPointList(ICollection<PathData> pathsData)
+        {
+            foreach (var pathData in pathsData)
+            {
+                PutPoints(PathPoint.CreateFromPathData(pathData));
+            }
+        }
+
         public void PutPoints(PathPoint pathBegin)
         {
             if (pathBegin == null)
@@ -71,7 +84,7 @@ namespace GreenLightTracker.Src
             public float distance;
         };
 
-        public IList<PathPoint> GetNearestPointsFiltered(GpsCoordinate point)
+        public List<PathPoint> GetNearestPointsFiltered(GpsCoordinate point)
         {
             var neighbors = GetNearestPoints(point);
 
