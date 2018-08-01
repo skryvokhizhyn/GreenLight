@@ -83,8 +83,10 @@ namespace GreenLightTracker.Src
                 {
                     locations.AddLast(new GpsLocation
                     {
-                        Longitude = reader.GetDouble(0),
-                        Latitude = reader.GetDouble(1),
+                        //Longitude = reader.GetDouble(0),
+                        //Latitude = reader.GetDouble(1),
+                        Longitude = reader.GetDouble(1),
+                        Latitude = reader.GetDouble(0),
                         Altitude = reader.GetDouble(2),
                         Timestamp = reader.GetInt32(4)
                     });

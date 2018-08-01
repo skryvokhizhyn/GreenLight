@@ -9,7 +9,7 @@ namespace GreenLightTracker.Src
         private List<PathPoint> m_neighbors = null;
         private GpsCoordinate m_previousPoint = null;
 
-        public delegate void NewPathPointHandler(PathPoint p);
+        public delegate void NewPathPointHandler(PathPoint p, int count);
         public event NewPathPointHandler PathPointFound;
 
         public RoadTracker(PathMapper mapper = null)
@@ -44,11 +44,21 @@ namespace GreenLightTracker.Src
                 if (m_neighbors == null || m_neighbors.Count == 0)
                 {
                     m_neighbors = m_mapper.GetNearestPointsFiltered(point);
+
+                    if (m_neighbors != null)
+                    {
+                        int a = 0;
+                        a++;
+                    }
                 }
                 else
                 {
                     PromoteNeighbors(m_neighbors, point);
                 }
+            }
+            else
+            {
+                m_neighbors = m_mapper.GetNearestPointsFiltered(point);
             }
 
             m_previousPoint = point;
@@ -67,7 +77,7 @@ namespace GreenLightTracker.Src
         {
             var pathPoint = TrackPoint(point);
 
-            PathPointFound(pathPoint);
+            PathPointFound(pathPoint, m_neighbors != null ? m_neighbors.Count : 0);
         }
 
         public static void CleanupNeighbors(IList<PathPoint> neighbors, GpsCoordinate currentPoint, GpsCoordinate nextPoint, float tolerance)
@@ -89,7 +99,7 @@ namespace GreenLightTracker.Src
                 }
 
                 // Remove too distant points
-                if (PointUtils.GetDistance(p.Next.Point, nextPoint) > tolerance)
+                if (PointUtils.GetDistance(p.Point, nextPoint) > tolerance)
                 {
                     neighbors.RemoveAt(i);
                     continue;
@@ -99,7 +109,7 @@ namespace GreenLightTracker.Src
                 var colinear = PointUtils.CheckColinear(
                     PointUtils.GetDirection(currentPoint, nextPoint),
                     PointUtils.GetDirection(p.Point, p.Next.Point),
-                    10.0f);
+                    30.0f);
 
                 if (!colinear)
                 {

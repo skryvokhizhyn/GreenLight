@@ -19,15 +19,6 @@ namespace GreenLightTracker.Test
         }
 
         [Test]
-        public void GetNeighborsFirstPointTest()
-        {
-            var tracker = new RoadTracker(null);
-
-            tracker.TrackPoint(new GpsCoordinate() { x = 10, y = 5 });
-            Assert.IsNull(tracker.GetNeighbors(true));
-        }
-
-        [Test]
         public void GetNeighborsNullPointTest()
         {
             var tracker = new RoadTracker(null);
@@ -324,6 +315,185 @@ namespace GreenLightTracker.Test
             Assert.AreEqual(2, neighbors.Count);
             Assert.AreEqual(1, neighbors[0].Point.x);
             Assert.AreEqual(1, neighbors[1].Point.x);
+        }
+
+        [Test]
+        public void GlobalOnePathBackTest1()
+        {
+            var pathPoints = new List<PathData>
+            {
+                new PathData(0)
+            };
+
+            pathPoints[0].Points.AddRange(new List<GpsCoordinate>
+            {
+                new GpsCoordinate{ x = 10 },
+                new GpsCoordinate{ x = 20 },
+                new GpsCoordinate{ x = 30 },
+            });
+
+            var pathMapper = new PathMapper(10);
+            pathMapper.PutPointList(pathPoints);
+
+            var roadTracker = new RoadTracker();
+            roadTracker.SetMapper(pathMapper);
+
+            roadTracker.TrackPoint(new GpsCoordinate { x = 25 });
+
+            var neighbors1 = (List<PathPoint>)roadTracker.GetNeighbors(false);
+
+            Assert.AreEqual(1, neighbors1.Count);
+            Assert.AreEqual(0, neighbors1[0].PathId);
+            Assert.AreEqual(20, neighbors1[0].Point.x);
+
+            roadTracker.TrackPoint(new GpsCoordinate { x = 0 });
+
+            var neighbors2 = (List<PathPoint>)roadTracker.GetNeighbors(false);
+
+            Assert.AreEqual(1, neighbors2.Count);
+            Assert.AreEqual(0, neighbors2[0].PathId);
+            Assert.AreEqual(10, neighbors2[0].Point.x);
+        }
+
+        [Test]
+        public void GlobalOnePathForwardTest1()
+        {
+            var pathPoints = new List<PathData>
+            {
+                new PathData(0)
+            };
+
+            pathPoints[0].Points.AddRange(new List<GpsCoordinate>
+            {
+                new GpsCoordinate{ x = 10 },
+                new GpsCoordinate{ x = 20 },
+                new GpsCoordinate{ x = 30 },
+                new GpsCoordinate{ x = 40 },
+            });
+
+            var pathMapper = new PathMapper(10);
+            pathMapper.PutPointList(pathPoints);
+
+            var roadTracker = new RoadTracker();
+            roadTracker.SetMapper(pathMapper);
+
+            roadTracker.TrackPoint(new GpsCoordinate { x = 15 });
+
+            var neighbors1 = (List<PathPoint>)roadTracker.GetNeighbors(false);
+
+            Assert.AreEqual(1, neighbors1.Count);
+            Assert.AreEqual(0, neighbors1[0].PathId);
+            Assert.AreEqual(10, neighbors1[0].Point.x);
+
+            roadTracker.TrackPoint(new GpsCoordinate { x = 25 });
+
+            var neighbors2 = (List<PathPoint>)roadTracker.GetNeighbors(false);
+
+            Assert.AreEqual(1, neighbors2.Count);
+            Assert.AreEqual(0, neighbors2[0].PathId);
+            Assert.AreEqual(30, neighbors2[0].Point.x);
+        }
+
+        [Test]
+        public void GlobalTwoPathForwardTest1()
+        {
+            var pathPoints = new List<PathData>
+            {
+                new PathData(0),
+                new PathData(1)
+            };
+
+            pathPoints[0].Points.AddRange(new List<GpsCoordinate>
+            {
+                new GpsCoordinate{ x = 10 },
+                new GpsCoordinate{ x = 20 },
+                new GpsCoordinate{ x = 30 },
+                new GpsCoordinate{ x = 40 },
+            });
+
+            pathPoints[0].Points.AddRange(new List<GpsCoordinate>
+            {
+                new GpsCoordinate{ x = 15 },
+                new GpsCoordinate{ x = 25 },
+                new GpsCoordinate{ x = 35 },
+                new GpsCoordinate{ x = 45 },
+            });
+
+            var pathMapper = new PathMapper(10);
+            pathMapper.PutPointList(pathPoints);
+
+            var roadTracker = new RoadTracker();
+            roadTracker.SetMapper(pathMapper);
+
+            roadTracker.TrackPoint(new GpsCoordinate { x = 15 });
+
+            var neighbors1 = (List<PathPoint>)roadTracker.GetNeighbors(false);
+
+            Assert.AreEqual(2, neighbors1.Count);
+            Assert.AreEqual(0, neighbors1[0].PathId);
+            Assert.AreEqual(10, neighbors1[0].Point.x);
+            Assert.AreEqual(1, neighbors1[1].PathId);
+            Assert.AreEqual(15, neighbors1[1].Point.x);
+
+            roadTracker.TrackPoint(new GpsCoordinate { x = 25 });
+
+            var neighbors2 = (List<PathPoint>)roadTracker.GetNeighbors(false);
+
+            Assert.AreEqual(2, neighbors1.Count);
+            Assert.AreEqual(0, neighbors2[0].PathId);
+            Assert.AreEqual(30, neighbors2[0].Point.x);
+            Assert.AreEqual(1, neighbors2[1].PathId);
+            Assert.AreEqual(30, neighbors2[1].Point.x);
+        }
+
+        [Test]
+        public void GlobalTwoPathMixedTest1()
+        {
+            var pathPoints = new List<PathData>
+            {
+                new PathData(0),
+                new PathData(1)
+            };
+
+            pathPoints[0].Points.AddRange(new List<GpsCoordinate>
+            {
+                new GpsCoordinate{ x = 10 },
+                new GpsCoordinate{ x = 20 },
+                new GpsCoordinate{ x = 30 },
+                new GpsCoordinate{ x = 40 },
+            });
+
+            pathPoints[1].Points.AddRange(new List<GpsCoordinate>
+            {
+                new GpsCoordinate{ x = 45 },
+                new GpsCoordinate{ x = 35 },
+                new GpsCoordinate{ x = 25 },
+                new GpsCoordinate{ x = 15 },
+            });
+
+            var pathMapper = new PathMapper(10);
+            pathMapper.PutPointList(pathPoints);
+
+            var roadTracker = new RoadTracker();
+            roadTracker.SetMapper(pathMapper);
+
+            roadTracker.TrackPoint(new GpsCoordinate { x = 15 });
+
+            var neighbors1 = (List<PathPoint>)roadTracker.GetNeighbors(false);
+
+            Assert.AreEqual(2, neighbors1.Count);
+            Assert.AreEqual(1, neighbors1[0].PathId);
+            Assert.AreEqual(15, neighbors1[0].Point.x);
+            Assert.AreEqual(0, neighbors1[1].PathId);
+            Assert.AreEqual(10, neighbors1[1].Point.x);
+
+            roadTracker.TrackPoint(new GpsCoordinate { x = 25 });
+
+            var neighbors2 = (List<PathPoint>)roadTracker.GetNeighbors(false);
+
+            Assert.AreEqual(1, neighbors1.Count);
+            Assert.AreEqual(0, neighbors2[0].PathId);
+            Assert.AreEqual(30, neighbors2[0].Point.x);
         }
     }
 }

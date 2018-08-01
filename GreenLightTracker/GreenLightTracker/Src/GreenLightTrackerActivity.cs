@@ -5,6 +5,8 @@ using Android.Widget;
 using Android.Content.PM;
 using Android.Content;
 
+using System.Collections.Generic;
+
 using NLog;
 
 namespace GreenLightTracker.Src
@@ -74,8 +76,10 @@ namespace GreenLightTracker.Src
             m_locationManager.GpsLocationReceived -= m_queryManager.OnGpsLocationReceived;
             m_locationManager.GpsLocationReceived -= m_roadTracker.OnGpsLocationReceived;
 
-            m_roadTracker.PathPointFound -= m_roadInformation.OnPathPointFound;
-            m_roadInformation.RoadLightFound += OnRoadLightFound;
+            //m_roadTracker.PathPointFound -= m_roadInformation.OnPathPointFound;
+            //m_roadInformation.RoadLightFound += OnRoadLightFound;
+
+            m_roadTracker.PathPointFound -= OnRoadLightFound;
 
             FindViewById<Button>(Resource.Id.stop_button).Enabled = false;
             FindViewById<Button>(Resource.Id.collect_button).Enabled = true;
@@ -137,6 +141,13 @@ namespace GreenLightTracker.Src
             var pathPoints = GpsUtils.GetPathPointsFromLocations(locations, 3000 /*ms*/);
             var initialCount = PointUtils.GetPointsCount(pathPoints);
 
+            //var a = (List<PathData>)pathPoints;
+            //var temp = a[7];
+            //a[7] = null;
+            //a.RemoveAll(n => n == null);
+
+            //var newPathPoints = new List<PathData> { temp };
+
             PointUtils.EnrichWithIntemediatePoints(pathPoints, 2 /*m*/);
 
             var afterEnrichmentCount = PointUtils.GetPointsCount(pathPoints);
@@ -145,8 +156,6 @@ namespace GreenLightTracker.Src
 
             //var duplicateFilter = new DuplicateRoadFilter(10);
             //duplicateFilter.Process(pathPoints);
-
-            var afterFilterCount = PointUtils.GetPointsCount(pathPoints);
 
             var filteredPoints = PointUtils.PathDataToGpsCoordinates(pathPoints);
 
@@ -157,27 +166,51 @@ namespace GreenLightTracker.Src
         [Java.Interop.Export()]
         public void OnTrackButtonClick(View v)
         {
+            PathData testPath = null;
+
             if (!m_roadTracker.IsInitialized())
             {
                 var locations = m_queryManager.GetAllGpsLocations();
 
+                //var l = ((LinkedList<GpsLocation>)locations).First.Value;
+                //var la = l.Latitude;
+                //var lo = l.Longitude; 
+
                 var pathPoints = GpsUtils.GetPathPointsFromLocations(locations, 3000 /*ms*/);
 
-                var initialCount = PointUtils.GetPointsCount(pathPoints);
+                //var a = (List<PathData>)pathPoints;
+                //testPath = a[7];
+                //a[7] = null;
+                //a.RemoveAll(n => n == null);
+
+                //var initialCount = PointUtils.GetPointsCount(pathPoints);
 
                 PointUtils.EnrichWithIntemediatePoints(pathPoints, 2 /*m*/);
 
                 var pathMapper = new PathMapper(10);
                 pathMapper.PutPointList(pathPoints);
                 m_roadTracker.SetMapper(pathMapper);
+
+                
             }
 
             m_locationManager.GpsLocationReceived += m_roadTracker.OnGpsLocationReceived;
 
-            m_roadTracker.PathPointFound += m_roadInformation.OnPathPointFound;
-            m_roadInformation.RoadLightFound += OnRoadLightFound;
+            //m_roadTracker.PathPointFound += m_roadInformation.OnPathPointFound;
+            //m_roadInformation.RoadLightFound += OnRoadLightFound;
+
+            m_roadTracker.PathPointFound += OnRoadLightFound;
 
             m_locationManager.Start();
+
+            //int b = 0;
+            //foreach (var p in testPath.Points)
+            //{
+            //    m_roadTracker.TrackPointAndNotify(p);
+
+            //    ++b;
+            //}
+
             FindViewById<Button>(Resource.Id.track_button).Enabled = false;
             FindViewById<Button>(Resource.Id.stop_button).Enabled = true;
         }
@@ -237,7 +270,7 @@ namespace GreenLightTracker.Src
                     {
                         if (grantResults[0] == Permission.Granted)
                         {
-                            Toast.MakeText(this, "Location permission granted.", ToastLength.Long).Show();
+                            Toast.   MakeText(this, "Location permission granted.", ToastLength.Long).Show();
                             m_logger.Info("Location permissions granted.");
                         }
                         else
@@ -275,9 +308,26 @@ namespace GreenLightTracker.Src
             UpdateTakenRowCount();
         }
 
-        private void OnRoadLightFound(int roadLightId)
+        private void OnRoadLightFound(PathPoint pathPoint, int count)
         {
-            FindViewById<TextView>(Resource.Id.row_road_id_text).Text = roadLightId.ToString();
+            //FindViewById<TextView>(Resource.Id.row_road_id_text).Text = roadLightId.ToString();
+
+            if (pathPoint != null)
+            {
+                FindViewById<TextView>(Resource.Id.row_road_id).Text = pathPoint.PathId.ToString();
+                FindViewById<TextView>(Resource.Id.row_neighbors_count).Text = count.ToString();
+
+                if (count > 1)
+                {
+                    int a = 0;
+                    ++a;
+                }
+            }
+            else
+            {
+                FindViewById<TextView>(Resource.Id.row_road_id).Text = "None";
+                FindViewById<TextView>(Resource.Id.row_neighbors_count).Text = "-1";
+            }
         }
     }
 }
