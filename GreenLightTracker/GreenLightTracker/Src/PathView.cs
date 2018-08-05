@@ -1,30 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-
-using Android.App;
 using Android.Content;
-using Android.OS;
-using Android.Runtime;
 using Android.Views;
 using Android.Util;
 using Android.Graphics;
-using Android.Graphics.Drawables;
-using Android.Graphics.Drawables.Shapes;
 
 namespace GreenLightTracker.Src
 {
     class PathView : View
     {
-        public float[] Points { private get; set; }
+        private float[] Points { get; set; }
+        private float[] CarPosition { get; set; }
 
         public PathView(Context context, IAttributeSet attrs) : base(context, attrs)
         {
         }
 
-        public void SetPoints(ICollection<GpsCoordinate> coordinates)
+        public void SetPoints(GpsCoordinate car, ICollection<GpsCoordinate> coordinates)
         {
+            if (coordinates == null)
+            {
+                Points = null;
+                return;
+            }
+
             Points = new float[coordinates.Count * 2];
 
             var xMin = Double.MaxValue;
@@ -46,6 +46,14 @@ namespace GreenLightTracker.Src
                 Points[i++] = (float)coord.y;
             }
 
+            if (car != null)
+            {
+                xMin = Math.Min(xMin, car.x);
+                yMin = Math.Min(yMin, car.y);
+                xMax = Math.Max(xMax, car.x);
+                yMax = Math.Max(yMax, car.y);
+            }
+
             var xDiff = xMax - xMin;
             var yDiff = yMax - yMin;
 
@@ -56,9 +64,21 @@ namespace GreenLightTracker.Src
             while (i > 0)
             {
                 var y = Points[--i];
-                Points[i] = (float)((y - yMin) * scale);
+                Points[i] = sz - (float)((y - yMin) * scale);
                 var x = Points[--i];
                 Points[i] = (float)((x - xMin) * scale);
+            }
+
+            if (car != null)
+            {
+                CarPosition = new float[2];
+
+                CarPosition[0] = (float)((car.x - xMin) * scale);
+                CarPosition[1] = sz - (float)((car.y - yMin) * scale);
+            }
+            else
+            {
+                CarPosition = null;
             }
         }
 
@@ -66,16 +86,17 @@ namespace GreenLightTracker.Src
         {
             base.OnDraw(canvas);
 
-            if (Points == null)
-                return;
-
-            var paint = new Paint
-            {
-                Color = Color.White
-            };
-
             canvas.DrawColor(Color.Black);
-            canvas.DrawPoints(Points, 0, Points.Length, paint);
+
+            if (Points != null)
+            {
+                canvas.DrawPoints(Points, 0, Points.Length, new Paint { Color = Color.White });
+            }
+
+            if (CarPosition != null)
+            {
+                canvas.DrawCircle(CarPosition[0], CarPosition[1], 4.0f, new Paint { Color = Color.GreenYellow,  });
+            }
         }
     }
 }

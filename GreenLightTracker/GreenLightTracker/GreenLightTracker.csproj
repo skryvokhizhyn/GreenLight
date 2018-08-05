@@ -64,11 +64,14 @@
   <ItemGroup>
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Src\ActivityCallbackUtils.cs" />
     <Compile Include="Src\DBPageActivity.cs" />
     <Compile Include="Src\DBQuery.cs" />
     <Compile Include="Src\DBQueryManager.cs" />
+    <Compile Include="Src\DBUpdater.cs" />
     <Compile Include="Src\DoublyLinkedList.cs" />
     <Compile Include="Src\DuplicateRoadFilter.cs" />
+    <Compile Include="Src\EventsConnectionManager.cs" />
     <Compile Include="Src\GpsCoordinate.cs" />
     <Compile Include="Src\GpsLocationFactory.cs" />
     <Compile Include="Src\GpsLocationManager.cs" />
@@ -83,6 +86,7 @@
     <Compile Include="Src\PathList.cs" />
     <Compile Include="Src\PathView.cs" />
     <Compile Include="Src\PathMapper.cs" />
+    <Compile Include="Src\PermissionsManager.cs" />
     <Compile Include="Src\PointUtils.cs" />
     <Compile Include="Src\RoadInformation.cs" />
     <Compile Include="Src\RoadSplitter.cs" />
@@ -111,6 +115,9 @@
     <Folder Include="Resources\mipmap-xhdpi\" />
     <Folder Include="Resources\mipmap-xxhdpi\" />
     <Folder Include="Resources\mipmap-xxxhdpi\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Assets\SQL\1.0\initial_version.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

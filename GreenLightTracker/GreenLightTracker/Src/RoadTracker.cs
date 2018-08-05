@@ -9,8 +9,11 @@ namespace GreenLightTracker.Src
         private List<PathPoint> m_neighbors = null;
         private GpsCoordinate m_previousPoint = null;
 
-        public delegate void NewPathPointHandler(PathPoint p, int count);
+        public delegate void NewPathPointHandler(GpsCoordinate position, PathPoint p, int count);
         public event NewPathPointHandler PathPointFound;
+
+        public delegate void NeighborsLostHandler();
+        public event NeighborsLostHandler NeighborsLost;
 
         public RoadTracker(PathMapper mapper = null)
         {
@@ -20,6 +23,11 @@ namespace GreenLightTracker.Src
         public void SetMapper(PathMapper mapper)
         {
             m_mapper = mapper;
+        }
+
+        public ICollection<GpsCoordinate> GetPathById(int id)
+        {
+            return m_mapper.GetPoints(id);
         }
 
         public bool IsInitialized()
@@ -39,10 +47,15 @@ namespace GreenLightTracker.Src
 
             if (m_previousPoint != null)
             {
+                bool hadNeighbors = m_neighbors != null && m_neighbors.Count > 0;
+
                 CleanupNeighbors(m_neighbors, m_previousPoint, point, m_mapper.GetTolerance());
 
                 if (m_neighbors == null || m_neighbors.Count == 0)
                 {
+                    if (hadNeighbors && NeighborsLost != null)
+                        NeighborsLost();
+
                     m_neighbors = m_mapper.GetNearestPointsFiltered(point);
 
                     if (m_neighbors != null)
@@ -77,7 +90,7 @@ namespace GreenLightTracker.Src
         {
             var pathPoint = TrackPoint(point);
 
-            PathPointFound(pathPoint, m_neighbors != null ? m_neighbors.Count : 0);
+            PathPointFound(point, pathPoint, m_neighbors != null ? m_neighbors.Count : 0);
         }
 
         public static void CleanupNeighbors(IList<PathPoint> neighbors, GpsCoordinate currentPoint, GpsCoordinate nextPoint, float tolerance)

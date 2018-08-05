@@ -190,12 +190,17 @@ namespace GreenLightTracker.Src
             return res;
         }
 
-        public ICollection<GpsCoordinate> GetPoints()
+        public ICollection<GpsCoordinate> GetPoints(int? id = null)
         {
             var res = new List<GpsCoordinate>();
 
             foreach (var p in m_firstPoints)
             {
+                if (id != null && id.Value != p.PathId)
+                {
+                    continue;
+                }
+
                 var point = p;
 
                 while (point != null)

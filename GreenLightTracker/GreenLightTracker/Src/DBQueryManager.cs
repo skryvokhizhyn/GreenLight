@@ -106,6 +106,15 @@ namespace GreenLightTracker.Src
             GetQuery().ExecuteCommand(sql);
         }
 
+        public string CreateBackup()
+        {
+            var backupFolder = System.IO.Path.Combine(
+                Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDownloads).AbsolutePath,
+                "GreenLightTracker");
+
+            return CreateBackup(backupFolder);
+        }
+
         public string CreateBackup(string backupFolder)
         {
             var time = Java.Lang.JavaSystem.CurrentTimeMillis().ToString();

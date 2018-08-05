@@ -132,7 +132,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Neighbors: " />
+            android:text=" Neighbors: " />
         <TextView
             android:id="@+id/row_neighbors_count"
             android:background="#ffffff"

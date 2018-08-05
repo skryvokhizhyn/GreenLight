@@ -411,7 +411,7 @@ namespace GreenLightTracker.Test
                 new GpsCoordinate{ x = 40 },
             });
 
-            pathPoints[0].Points.AddRange(new List<GpsCoordinate>
+            pathPoints[1].Points.AddRange(new List<GpsCoordinate>
             {
                 new GpsCoordinate{ x = 15 },
                 new GpsCoordinate{ x = 25 },
@@ -430,10 +430,10 @@ namespace GreenLightTracker.Test
             var neighbors1 = (List<PathPoint>)roadTracker.GetNeighbors(false);
 
             Assert.AreEqual(2, neighbors1.Count);
-            Assert.AreEqual(0, neighbors1[0].PathId);
-            Assert.AreEqual(10, neighbors1[0].Point.x);
-            Assert.AreEqual(1, neighbors1[1].PathId);
-            Assert.AreEqual(15, neighbors1[1].Point.x);
+            Assert.AreEqual(1, neighbors1[0].PathId);
+            Assert.AreEqual(15, neighbors1[0].Point.x);
+            Assert.AreEqual(0, neighbors1[1].PathId);
+            Assert.AreEqual(10, neighbors1[1].Point.x);
 
             roadTracker.TrackPoint(new GpsCoordinate { x = 25 });
 
