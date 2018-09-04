@@ -306,5 +306,39 @@ namespace GreenLightTracker.Test
             Assert.AreEqual(1, res[0].Count);
             Assert.AreEqual(1, res[1].Count);
         }
+
+        [Test]
+        public void SplitPathDataAtIndexTest1()
+        {
+            var pathsData = PointUtils.CreateFromPoints(
+                new List<GpsCoordinate>()
+                {
+                        new GpsCoordinate(){ x = 0 },
+                        new GpsCoordinate(){ x = 1 },
+                        new GpsCoordinate(){ x = 2 },
+                        new GpsCoordinate(){ x = 3 },
+                }, 1);
+
+            var tail = PointUtils.SplitPathDataAtIndex(pathsData[0], 2);
+
+            Assert.AreEqual(2, tail.Points.Count);
+            Assert.AreEqual(2, tail.Points[0].x);
+            Assert.AreEqual(3, tail.Points[1].x);
+        }
+
+        [Test]
+        public void SplitPathDataAtIndexIncorrectTest1()
+        {
+            var pathsData = PointUtils.CreateFromPoints(
+                new List<GpsCoordinate>()
+                {
+                     new GpsCoordinate(){ x = 0 },
+                     new GpsCoordinate(){ x = 1 },
+                }, 1);
+
+            Assert.IsNull(PointUtils.SplitPathDataAtIndex(null, 2));
+            Assert.IsNull(PointUtils.SplitPathDataAtIndex(pathsData[0], -2));
+            Assert.IsNull(PointUtils.SplitPathDataAtIndex(pathsData[0], 2));
+        }
     }
 }

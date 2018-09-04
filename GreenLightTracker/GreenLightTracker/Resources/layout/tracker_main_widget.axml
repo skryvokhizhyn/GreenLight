@@ -1,16 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center">
-<!--<Button
-        android:id="@+id/db_page_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="10dp"
-        android:text="DB page"
-        android:onClick="DBPageButtonClick" />-->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -23,6 +17,19 @@
             android:padding="10dp"
             android:text="Exit"
             android:onClick="OnExitButtonClick" />
+        <Button
+            android:id="@+id/db_page_button"
+            android:padding="10dp"
+            android:text="DB"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:onClick="OnDBPageButtonClick" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
         <Button
             android:id="@+id/stop_button"
             android:layout_width="wrap_content"
@@ -44,33 +51,6 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:onClick="OnTrackButtonClick" />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center">
-        <Button
-            android:id="@+id/db_clean_up_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="10dp"
-            android:text="Clean up DB"
-            android:onClick="OnDBCleanupButtonClick" />
-        <Button
-            android:id="@+id/db_backup_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="10dp"
-            android:text="Backup DB"
-            android:onClick="OnDBBackupButtonClick" />
-        <Button
-            android:id="@+id/row_count_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="10dp"
-            android:text="Row count"
-            android:onClick="OnRowCountButtonClick" />
         <Button
             android:text="Draw"
             android:id="@+id/draw_button"
@@ -79,7 +59,7 @@
             android:onClick="OnDrawButtonClick" />
     </LinearLayout>
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="left">
@@ -113,16 +93,11 @@
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
             android:text="N/A" />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="left">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="RoadId: " />
+            android:text="RoadId: "
+            android:id="@+id/textView1" />
         <TextView
             android:id="@+id/row_road_id"
             android:background="#ffffff"
@@ -132,7 +107,8 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text=" Neighbors: " />
+            android:text=" Nbrs: "
+            android:id="@+id/textView2" />
         <TextView
             android:id="@+id/row_neighbors_count"
             android:background="#ffffff"
@@ -140,8 +116,77 @@
             android:layout_height="fill_parent"
             android:text="N/A" />
     </LinearLayout>
-    <GreenLightTracker.Src.PathView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:minHeight="50px"
+        android:minWidth="50px">
+        <Button
+            android:text="Rst"
+            android:layout_width="54.5dp"
+            android:layout_height="match_parent"
+            android:id="@+id/move_reset"
+            android:onClick="OnResetButtonClick"
+            android:enabled="false" />
+        <Button
+            android:text="+"
+            android:id="@+id/zoom_in"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:onClick="OnZoomInButtonClick"
+            android:enabled="false"
+            android:textSize="25dp"
+            android:padding="0px" />
+        <Button
+            android:text="-"
+            android:layout_height="50dp"
+            android:id="@+id/zoom_out"
+            android:layout_width="50dp"
+            android:onClick="OnZoomOutButtonClick"
+            android:enabled="false"
+            android:textSize="25dp"
+            android:padding="0px" />
+        <Button
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:id="@+id/move_left"
+            android:onClick="OnMoveLeftButtonClick"
+            android:enabled="false"
+            android:text="◀"
+            android:textSize="25dp"
+            android:padding="0px" />
+        <Button
+            android:text="▶"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:id="@+id/move_right"
+            android:onClick="OnMoveRightButtonClick"
+            android:enabled="false"
+            android:padding="0px"
+            android:textSize="25dp" />
+        <Button
+            android:text="▲"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:id="@+id/move_up"
+            android:onClick="OnMoveUpButtonClick"
+            android:enabled="false"
+            android:textSize="25dp"
+            android:padding="0px" />
+        <Button
+            android:text="▼"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:id="@+id/move_down"
+            android:onClick="OnMoveDownButtonClick"
+            android:enabled="false"
+            android:textSize="25dp"
+            android:padding="0px" />
+    </LinearLayout>
+    <GreenLightTracker.Src.PathView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
         android:id="@+id/path_view" />
 </LinearLayout>

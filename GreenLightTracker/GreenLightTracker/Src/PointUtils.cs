@@ -39,9 +39,14 @@ namespace GreenLightTracker.Src
 
         public static bool CheckColinear(GpsCoordinate v1, GpsCoordinate v2, float tolerance)
         {
+            return CheckAngleIsBetween(v1, v2, 0, tolerance);
+        }
+
+        public static bool CheckAngleIsBetween(GpsCoordinate v1, GpsCoordinate v2, float angleFrom, float angleTo)
+        {
             var angleBetween = GetAngleBetween(v1, v2);
 
-            return Math.Abs(angleBetween) <= tolerance;
+            return Math.Abs(angleBetween) >= angleFrom && Math.Abs(angleBetween) <= angleTo;
         }
 
         public static void EnrichWithIntemediatePoints(ICollection<PathData> paths, float pointsStep)
@@ -238,6 +243,79 @@ namespace GreenLightTracker.Src
             }
 
             return cnt;
+        }
+
+        public static ValueTuple<double, double, double, double> GetXYMinMax(ICollection<PathData> paths)
+        {
+            if (paths == null)
+                throw new ArgumentNullException("[GetXYMinMax(ICollection<PathData> paths)] paths is null");
+
+            var xMin = Double.MaxValue;
+            var yMin = Double.MaxValue;
+            var xMax = Double.MinValue;
+            var yMax = Double.MinValue;
+
+            foreach (var path in paths)
+            {
+                foreach (var p in path.Points)
+                {
+                    xMin = Math.Min(xMin, p.x);
+                    yMin = Math.Min(yMin, p.y);
+
+                    xMax = Math.Max(xMax, p.x);
+                    yMax = Math.Max(yMax, p.y);
+                }
+            }
+
+            return ( xMin, yMin, xMax, yMax );
+        }
+
+        public static double GetDistance(IEnumerable<GpsCoordinate> points)
+        {
+            var length = 0.0;
+            GpsCoordinate prevPoint = null;
+
+            foreach (var p in points)
+            {
+                if (prevPoint != null)
+                {
+                    length += PointUtils.GetDistance(prevPoint, p);
+                }
+
+                prevPoint = p;
+            }
+
+            return length;
+        }
+
+        public static void RemoveShortPaths(ICollection<PathData> paths, float tolerance = 10)
+        {
+            if (paths == null)
+                return;
+
+            ((List<PathData>)paths).RemoveAll(path => PointUtils.GetDistance(path.Points) < tolerance);
+        }
+
+        public static void RemoveLongPaths(ICollection<PathData> paths, float tolerance = 10)
+        {
+            if (paths == null)
+                return;
+
+            ((List<PathData>)paths).RemoveAll(path => PointUtils.GetDistance(path.Points) >= tolerance);
+        }
+
+        public static PathData SplitPathDataAtIndex(PathData pathData, int index)
+        {
+            if (pathData == null || index < 0 || index >= pathData.Points.Count)
+                return null;
+
+            var tailPointsCount = pathData.Points.Count - index;
+
+            var tail = new PathData();
+            tail.Points = pathData.Points.GetRange(index, tailPointsCount);
+            pathData.Points.RemoveRange(index, tailPointsCount);
+
+            return tail;
         }
     }
 }

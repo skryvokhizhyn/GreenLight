@@ -206,7 +206,8 @@ namespace GreenLightTracker.Src
                 {
                     var point = pathData.Points[pointIndex];
 
-                    if (mapper.GetNearestPointsFiltered(point) != null)
+                    var nearestPoints = mapper.GetNearestPointsFiltered(point);
+                    if (AtLeastOneNeighborIsColinear(nearestPoints, pathData.Points, pointIndex))
                     {
                         pathData.Points[pointIndex] = null;
                     }
@@ -258,6 +259,43 @@ namespace GreenLightTracker.Src
 
             pathsList.RemoveAll(p => p == null);
             pathsList.AddRange(newPathsListTotal);
+        }
+
+        public static bool AtLeastOneNeighborIsColinear(IEnumerable<PathPoint> nearestPoints, List<GpsCoordinate> points, int pointIndex)
+        {
+            if (nearestPoints == null)
+                return false;
+
+            if (pointIndex >= points.Count - 1)
+                return false;
+
+            foreach (var nearestPathPoint in nearestPoints)
+            {
+                GpsCoordinate nearestPathVector;
+
+                var nextNearestPathPoint = nearestPathPoint.Next;
+                var prevNearestPathPoint = nearestPathPoint.Prev;
+                if (nextNearestPathPoint != null)
+                {
+                    nearestPathVector = PointUtils.GetDirection(nearestPathPoint.Point, nextNearestPathPoint.Point);
+                }
+                else if (prevNearestPathPoint != null)
+                {
+                    nearestPathVector = PointUtils.GetDirection(prevNearestPathPoint.Point, nearestPathPoint.Point);
+                }
+                else
+                    continue;
+
+                if (PointUtils.CheckColinear(
+                        PointUtils.GetDirection(points[pointIndex], points[pointIndex + 1]),
+                        nearestPathVector,
+                        20))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

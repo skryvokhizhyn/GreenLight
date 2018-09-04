@@ -44,53 +44,83 @@ namespace GreenLightTracker
 		public partial class Id
 		{
 			
-			// aapt resource value: 0x7f040000
-			public const int back_button = 2130968576;
-			
-			// aapt resource value: 0x7f040005
-			public const int collect_button = 2130968581;
-			
 			// aapt resource value: 0x7f040008
-			public const int db_backup_button = 2130968584;
-			
-			// aapt resource value: 0x7f040007
-			public const int db_clean_up_button = 2130968583;
-			
-			// aapt resource value: 0x7f040009
-			public const int draw_button = 2130968585;
-			
-			// aapt resource value: 0x7f040003
-			public const int exit_button = 2130968579;
-			
-			// aapt resource value: 0x7f04000f
-			public const int path_view = 2130968591;
+			public const int collect_button = 2130968584;
 			
 			// aapt resource value: 0x7f040002
-			public const int row_count_button = 2130968578;
-			
-			// aapt resource value: 0x7f04000b
-			public const int row_count_filtered_text = 2130968587;
-			
-			// aapt resource value: 0x7f04000c
-			public const int row_count_taken_text = 2130968588;
+			public const int db_backup_button = 2130968578;
 			
 			// aapt resource value: 0x7f040001
-			public const int row_count_text = 2130968577;
-			
-			// aapt resource value: 0x7f04000a
-			public const int row_count_total_text = 2130968586;
-			
-			// aapt resource value: 0x7f04000e
-			public const int row_neighbors_count = 2130968590;
-			
-			// aapt resource value: 0x7f04000d
-			public const int row_road_id = 2130968589;
-			
-			// aapt resource value: 0x7f040004
-			public const int stop_button = 2130968580;
+			public const int db_clean_up_button = 2130968577;
 			
 			// aapt resource value: 0x7f040006
-			public const int track_button = 2130968582;
+			public const int db_page_button = 2130968582;
+			
+			// aapt resource value: 0x7f04000a
+			public const int draw_button = 2130968586;
+			
+			// aapt resource value: 0x7f040005
+			public const int exit_button = 2130968581;
+			
+			// aapt resource value: 0x7f040000
+			public const int linearLayout2 = 2130968576;
+			
+			// aapt resource value: 0x7f040018
+			public const int move_down = 2130968600;
+			
+			// aapt resource value: 0x7f040015
+			public const int move_left = 2130968597;
+			
+			// aapt resource value: 0x7f040012
+			public const int move_reset = 2130968594;
+			
+			// aapt resource value: 0x7f040016
+			public const int move_right = 2130968598;
+			
+			// aapt resource value: 0x7f040017
+			public const int move_up = 2130968599;
+			
+			// aapt resource value: 0x7f040019
+			public const int path_view = 2130968601;
+			
+			// aapt resource value: 0x7f040004
+			public const int row_count_button = 2130968580;
+			
+			// aapt resource value: 0x7f04000c
+			public const int row_count_filtered_text = 2130968588;
+			
+			// aapt resource value: 0x7f04000d
+			public const int row_count_taken_text = 2130968589;
+			
+			// aapt resource value: 0x7f040003
+			public const int row_count_text = 2130968579;
+			
+			// aapt resource value: 0x7f04000b
+			public const int row_count_total_text = 2130968587;
+			
+			// aapt resource value: 0x7f040011
+			public const int row_neighbors_count = 2130968593;
+			
+			// aapt resource value: 0x7f04000f
+			public const int row_road_id = 2130968591;
+			
+			// aapt resource value: 0x7f040007
+			public const int stop_button = 2130968583;
+			
+			// aapt resource value: 0x7f04000e
+			public const int textView1 = 2130968590;
+			
+			// aapt resource value: 0x7f040010
+			public const int textView2 = 2130968592;
+			
+			// aapt resource value: 0x7f040009
+			public const int track_button = 2130968585;
+			
+			// aapt resource value: 0x7f040013
+			public const int zoom_in = 2130968595;
+			
+			// aapt resource value: 0x7f040014
+			public const int zoom_out = 2130968596;
 			
 			static Id()
 			{

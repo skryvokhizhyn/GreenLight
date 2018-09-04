@@ -51,6 +51,11 @@ namespace GreenLightTracker.Src
             return result;
         }
 
+        public static PathData ConvertToPathData(PathPoint pathPoint)
+        {
+            return null;
+        }
+
         public static PathPoint CreateFromPoints(ICollection<GpsCoordinate> points, int pathId)
         {
             PathPoint result = null;

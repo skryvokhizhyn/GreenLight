@@ -1,4 +1,5 @@
-﻿
+﻿using GreenLightTracker.Src.Activities;
+
 namespace GreenLightTracker.Src
 {
     class EventsConnectionManager

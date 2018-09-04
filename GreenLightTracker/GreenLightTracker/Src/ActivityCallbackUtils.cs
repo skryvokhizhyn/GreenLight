@@ -1,33 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-using Android.App;
+﻿using Android.App;
 using Android.Content;
-using Android.OS;
-using Android.Runtime;
-using Android.Views;
 using Android.Widget;
+using System.Collections.Generic;
 
 namespace GreenLightTracker.Src
 {
     class ActivityCallbackUtils
     {
         public static void ProcessTrackButtonClick(
-            RoadTracker roadTracker, DBQueryManager queryManager, EventsConnectionManager eventConnectionManager, GpsLocationManager locationManager)
+            RoadTracker roadTracker, DBQueryManager queryManager, EventsConnectionManager eventConnectionManager, GpsLocationManager locationManager, PathView pathView)
         {
             if (!roadTracker.IsInitialized())
             {
-                var locations = queryManager.GetAllGpsLocations();
-
-                var pathPoints = GpsUtils.GetPathPointsFromLocations(locations, 3000 /*ms*/);
-
-                PointUtils.EnrichWithIntemediatePoints(pathPoints, 2 /*m*/);
+                var pathPoints = GetPathData(queryManager);
 
                 var pathMapper = new PathMapper(10);
                 pathMapper.PutPointList(pathPoints);
                 roadTracker.SetMapper(pathMapper);
+
+                var xyMinMax = PointUtils.GetXYMinMax(pathPoints);
+
+                pathView.XMin = xyMinMax.Item1;
+                pathView.YMin = xyMinMax.Item2;
+                pathView.XMax = xyMinMax.Item3;
+                pathView.YMax = xyMinMax.Item4;
             }
 
             eventConnectionManager.ConnectForTracking();
@@ -37,17 +33,24 @@ namespace GreenLightTracker.Src
 
         public static void ProcessDrawButtonClick(DBQueryManager queryManager, PathView pathView)
         {
-            var locations = queryManager.GetAllGpsLocations();
-            var pathPoints = GpsUtils.GetPathPointsFromLocations(locations, 3000 /*ms*/);
-            var initialCount = PointUtils.GetPointsCount(pathPoints);
+            var pathPoints = GetPathData(queryManager);
 
-            PointUtils.EnrichWithIntemediatePoints(pathPoints, 2 /*m*/);
+            var xyMinMax = PointUtils.GetXYMinMax(pathPoints);
 
-            var afterEnrichmentCount = PointUtils.GetPointsCount(pathPoints);
+            pathView.XMin = xyMinMax.Item1;
+            pathView.YMin = xyMinMax.Item2;
+            pathView.XMax = xyMinMax.Item3;
+            pathView.YMax = xyMinMax.Item4;
 
-            var filteredPoints = PointUtils.PathDataToGpsCoordinates(pathPoints);
+            //var gpsCoordinates = PointUtils.PathDataToGpsCoordinates(pathPoints);
+            //pathView.SetPoints(gpsCoordinates);
 
-            pathView.SetPoints(null, filteredPoints);
+            pathView.ResetColoredPoints();
+            foreach (var p in pathPoints)
+            {
+                pathView.AppendCoredPoints(p.Points);
+            }
+
             pathView.Invalidate();
         }
 
@@ -64,6 +67,39 @@ namespace GreenLightTracker.Src
                 })
                 .SetNegativeButton("No", (object sender, DialogClickEventArgs e) => { });
             builder.Create().Show();
+        }
+
+        private static ICollection<PathData> GetPathData(DBQueryManager queryManager)
+        {
+            var locations = queryManager.GetAllGpsLocations();
+            var pathPoints = GpsUtils.GetPathPointsFromLocations(locations, 3000 /*ms*/);
+
+            var initialCount = PointUtils.GetPointsCount(pathPoints);
+
+            PointUtils.RemoveShortPaths(pathPoints, 1000 /*m*/);
+
+            var afterFirstRemovalOfShortPaths = PointUtils.GetPointsCount(pathPoints);
+
+            PointUtils.EnrichWithIntemediatePoints(pathPoints, 2 /*m*/);
+
+            var enrichedCount = PointUtils.GetPointsCount(pathPoints);
+
+            var duplicatesFilter = new DuplicateRoadFilter(10 /*m*/);
+            duplicatesFilter.Process(pathPoints);
+
+            var deduplicatedCount = PointUtils.GetPointsCount(pathPoints);
+
+            PointUtils.RemoveShortPaths(pathPoints, 1000 /*m*/);
+
+            var shortenedCount = PointUtils.GetPointsCount(pathPoints);
+
+            var roadSplitter = new RoadSplitter(10 /*m*/);
+            roadSplitter.Process(pathPoints);
+
+            // Remove after splitting short artifacts
+            //PointUtils.RemoveShortPaths(pathPoints, 4 /*m*/);
+
+            return pathPoints;
         }
     }
 }

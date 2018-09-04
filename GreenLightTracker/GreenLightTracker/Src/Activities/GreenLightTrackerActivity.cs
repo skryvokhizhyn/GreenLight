@@ -8,7 +8,7 @@ using Android.Graphics;
 
 using NLog;
 
-namespace GreenLightTracker.Src
+namespace GreenLightTracker.Src.Activities
 {
     [Activity(Label = "Green Light Tracker", MainLauncher = true)]
     public class GreenLightTrackerActivity : Activity
@@ -48,6 +48,23 @@ namespace GreenLightTracker.Src
             base.OnDestroy();
         }
 
+        protected override void OnPause()
+        {
+            OnStopButtonClick(null);
+
+            base.OnPause();
+        }
+
+        protected override void OnPostResume()
+        {
+            base.OnPostResume();
+        }
+
+        protected override void OnStart()
+        {
+            base.OnStart();
+        }
+
         // View actions
         [Java.Interop.Export()]
         public void OnExitButtonClick(View v)
@@ -79,47 +96,74 @@ namespace GreenLightTracker.Src
         }
 
         [Java.Interop.Export()]
-        public void OnRowCountButtonClick(View v)
-        {
-            var cnt = m_queryManager.GetGpsLocationCount();
-            FindViewById<TextView>(Resource.Id.row_count_total_text).Text = cnt.ToString();
-            m_rowsCount = 0;
-            UpdateTakenRowCount();
-        }
-
-        [Java.Interop.Export()]
-        public void OnDBBackupButtonClick(View v)
-        {
-            m_locationManager.Stop();
-            m_queryManager.Close();
-
-            var backupPath = m_queryManager.CreateBackup();
-            Toast.MakeText(this, $"Backup location is: {backupPath}", ToastLength.Long).Show();
-
-            m_queryManager.Open();
-            m_locationManager.Start();
-        }
-
-        [Java.Interop.Export()]
-        public void OnDBCleanupButtonClick(View v)
-        {
-            ActivityCallbackUtils.ProcessDBCleanupButtonClick(this, m_queryManager);
-        }
-
-        [Java.Interop.Export()]
         public void OnDrawButtonClick(View v)
         {
             ActivityCallbackUtils.ProcessDrawButtonClick(m_queryManager, m_pathView);
+
+            FindViewById<Button>(Resource.Id.move_reset).Enabled = true;
+            FindViewById<Button>(Resource.Id.move_down).Enabled = true;
+            FindViewById<Button>(Resource.Id.move_up).Enabled = true;
+            FindViewById<Button>(Resource.Id.move_left).Enabled = true;
+            FindViewById<Button>(Resource.Id.move_right).Enabled = true;
+            FindViewById<Button>(Resource.Id.zoom_in).Enabled = true;
+            FindViewById<Button>(Resource.Id.zoom_out).Enabled = true;
         }
 
         [Java.Interop.Export()]
         public void OnTrackButtonClick(View v)
         {
-            ActivityCallbackUtils.ProcessTrackButtonClick(m_roadTracker, m_queryManager, m_eventConnectionManager, m_locationManager);
+            ActivityCallbackUtils.ProcessTrackButtonClick(m_roadTracker, m_queryManager, m_eventConnectionManager, m_locationManager, m_pathView);
 
             FindViewById<Button>(Resource.Id.track_button).Enabled = false;
             FindViewById<Button>(Resource.Id.stop_button).Enabled = true;
         }
+
+        [Java.Interop.Export()]
+        public void OnDBPageButtonClick(View v)
+        {
+            Intent dbPageActivity = new Intent(this, typeof(DBPageActivity));
+            StartActivity(dbPageActivity);
+        }
+
+        #region View manipulation callbacks
+
+        [Java.Interop.Export()]
+        public void OnResetButtonClick(View v)
+        {
+            m_pathView.ResetZoomAndMove();
+        }
+        [Java.Interop.Export()]
+        public void OnZoomInButtonClick(View v)
+        {
+            m_pathView.ZoomIn();
+        }
+        [Java.Interop.Export()]
+        public void OnZoomOutButtonClick(View v)
+        {
+            m_pathView.ZoomOut();
+        }
+        [Java.Interop.Export()]
+        public void OnMoveLeftButtonClick(View v)
+        {
+            m_pathView.MoveLeft();
+        }
+        [Java.Interop.Export()]
+        public void OnMoveRightButtonClick(View v)
+        {
+            m_pathView.MoveRight();
+        }
+        [Java.Interop.Export()]
+        public void OnMoveUpButtonClick(View v)
+        {
+            m_pathView.MoveUp();
+        }
+        [Java.Interop.Export()]
+        public void OnMoveDownButtonClick(View v)
+        {
+            m_pathView.MoveDown();
+        }
+
+        #endregion
 
         private void ShowTerminateWindow(string text)
         {
@@ -161,7 +205,12 @@ namespace GreenLightTracker.Src
                 FindViewById<TextView>(Resource.Id.row_road_id).SetBackgroundColor(new Color(Color.Magenta));
                 FindViewById<TextView>(Resource.Id.row_neighbors_count).Text = count.ToString();
 
-                m_pathView.SetPoints(position, m_roadTracker.GetPathById(pathPoint.PathId));
+                m_pathView.SetCarPosition(position);
+                // TODO: don't process SetPoints if pathId hasn't changed
+                //var pathPoints = m_roadTracker.GetPathById(pathPoint.PathId);
+                var pathPoints = m_roadTracker.GetPointsStartingAtPath(pathPoint.PathId, 0);
+                //m_pathView.SetPoints(pathPoints);
+                m_pathView.AppendCoredPoints(pathPoints);
                 m_pathView.Invalidate();
             }
             else
@@ -170,7 +219,8 @@ namespace GreenLightTracker.Src
                 FindViewById<TextView>(Resource.Id.row_road_id).SetBackgroundColor(new Color(Color.White));
                 FindViewById<TextView>(Resource.Id.row_neighbors_count).Text = "-1";
 
-                m_pathView.SetPoints(null, null);
+                m_pathView.SetCarPosition(null);
+                m_pathView.SetPoints(null);
                 m_pathView.Invalidate();
             }
 

@@ -30,6 +30,37 @@ namespace GreenLightTracker.Src
             return m_mapper.GetPoints(id);
         }
 
+        public ICollection<GpsCoordinate> GetPointsStartingAtPath(int id, float distance)
+        {
+            var result = new List<GpsCoordinate>();
+
+            var pathToProcess = new List<int> { id };
+
+            var processedPoints = new HashSet<int>();
+
+            while (pathToProcess.Count > 0)
+            {
+                var path = GetPathById(pathToProcess[0]);
+
+                pathToProcess.RemoveAt(0);
+
+                result.AddRange(path);
+
+                var neighbors = m_mapper.GetNearestPointsFiltered(result[result.Count - 1]);
+
+                foreach (var n in neighbors)
+                {
+                    if (!processedPoints.Contains(n.PathId))
+                    {
+                        pathToProcess.Add(n.PathId);
+                        processedPoints.Add(n.PathId);
+                    }
+                }
+            }
+
+            return result;
+        }
+
         public bool IsInitialized()
         {
             return m_mapper != null;
@@ -112,10 +143,39 @@ namespace GreenLightTracker.Src
                 }
 
                 // Remove too distant points
-                if (PointUtils.GetDistance(p.Point, nextPoint) > tolerance)
+                var dist = PointUtils.GetDistance(p.Point, nextPoint);
+
+                if (dist > tolerance)
                 {
-                    neighbors.RemoveAt(i);
-                    continue;
+                    var testedPoint = p;
+
+                    var neighborVaild = false;
+
+                    for ( ; ; )
+                    {
+                        testedPoint = testedPoint.Next;
+                        if (testedPoint == null)
+                            break;
+
+                        var testedDist = PointUtils.GetDistance(testedPoint.Point, nextPoint);
+
+                        if (testedDist > dist)
+                            break;
+
+                        dist = testedDist;
+
+                        if (testedDist <= tolerance)
+                        {
+                            neighborVaild = true;
+                            break;
+                        }
+                    }
+
+                    if (!neighborVaild)
+                    {
+                        neighbors.RemoveAt(i);
+                        continue;
+                    }
                 }
 
                 // Remove non-colinear directions

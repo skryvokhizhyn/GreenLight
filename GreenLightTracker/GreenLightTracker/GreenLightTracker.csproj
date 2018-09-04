@@ -64,8 +64,8 @@
   <ItemGroup>
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Src\Activities\DBPageActivity.cs" />
     <Compile Include="Src\ActivityCallbackUtils.cs" />
-    <Compile Include="Src\DBPageActivity.cs" />
     <Compile Include="Src\DBQuery.cs" />
     <Compile Include="Src\DBQueryManager.cs" />
     <Compile Include="Src\DBUpdater.cs" />
@@ -76,9 +76,10 @@
     <Compile Include="Src\GpsLocationFactory.cs" />
     <Compile Include="Src\GpsLocationManager.cs" />
     <Compile Include="Src\GpsUtils.cs" />
-    <Compile Include="Src\GreenLightTrackerActivity.cs" />
+    <Compile Include="Src\Activities\GreenLightTrackerActivity.cs" />
     <Compile Include="Src\GpsLocation.cs" />
     <Compile Include="Src\MapperCell.cs" />
+    <Compile Include="Src\PathConnection.cs" />
     <Compile Include="Src\PathData.cs" />
     <Compile Include="Src\PathId.cs" />
     <Compile Include="Src\PathPoint.cs" />

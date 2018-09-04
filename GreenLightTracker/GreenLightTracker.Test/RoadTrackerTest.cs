@@ -94,13 +94,14 @@ namespace GreenLightTracker.Test
         [Test]
         public void CleanupNeighborsNoNextTest()
         {
-            var p1 = new GpsCoordinate() { x = 10, y = 0 };
-            var p2 = new GpsCoordinate() { x = 11, y = 0 };
-
-            var pp1 = new PathPoint() { Point = p1 };
-            var pp2 = new PathPoint() { Point = p2 };
-
-            var n = new List<PathPoint>() { pp1, pp2 };
+            var n = new List<PathPoint>
+            {
+                PathPoint.CreateFromPoints(
+                    new List<GpsCoordinate>
+                    {
+                        new GpsCoordinate() { x = 10 },
+                    }, 0)
+            };
 
             RoadTracker.CleanupNeighbors(
                 n,
@@ -114,18 +115,90 @@ namespace GreenLightTracker.Test
         [Test]
         public void CleanupNeighborsTooDistantTest()
         {
-            var p1 = new GpsCoordinate() { x = 10, y = 0 };
-            var p2 = new GpsCoordinate() { x = 11, y = 0 };
-
-            var pp1 = new PathPoint() { Point = p1 };
-            var pp2 = new PathPoint() { Point = p2 };
-
-            var n = new List<PathPoint>() { pp1, pp2 };
+            var n = new List<PathPoint>
+            {
+                PathPoint.CreateFromPoints(
+                    new List<GpsCoordinate>
+                    {
+                        new GpsCoordinate() { x = 10 },
+                        new GpsCoordinate() { x = 11 },
+                    }, 0)
+            };
 
             RoadTracker.CleanupNeighbors(
                 n,
                 new GpsCoordinate() { x = 50, y = 5 },
                 new GpsCoordinate() { x = 51, y = 5 },
+                10);
+
+            Assert.AreEqual(0, n.Count);
+        }
+
+        [Test]
+        public void CleanupNeighborsMultipleIterationsTest1()
+        {
+            var n = new List<PathPoint>
+            {
+                PathPoint.CreateFromPoints(
+                    new List<GpsCoordinate>
+                    {
+                        new GpsCoordinate() { x = 10 },
+                        new GpsCoordinate() { x = 20 },
+                        new GpsCoordinate() { x = 30 },
+                        new GpsCoordinate() { x = 40 },
+                    }, 0)
+            };
+
+            RoadTracker.CleanupNeighbors(
+                n,
+                new GpsCoordinate() { x = 21 },
+                new GpsCoordinate() { x = 35 },
+                10);
+
+            Assert.AreEqual(1, n.Count);
+        }
+
+        [Test]
+        public void CleanupNeighborsMultipleIterationsNoNextTest1()
+        {
+            var n = new List<PathPoint>
+            {
+                PathPoint.CreateFromPoints(
+                    new List<GpsCoordinate>
+                    {
+                        new GpsCoordinate() { x = 10 },
+                        new GpsCoordinate() { x = 20 },
+                        new GpsCoordinate() { x = 30 },
+                    }, 0)
+            };
+
+            RoadTracker.CleanupNeighbors(
+                n,
+                new GpsCoordinate() { x = 21 },
+                new GpsCoordinate() { x = 45 },
+                10);
+
+            Assert.AreEqual(0, n.Count);
+        }
+
+        [Test]
+        public void CleanupNeighborsMultipleIterationsIncreaseTest1()
+        {
+            var n = new List<PathPoint>
+            {
+                PathPoint.CreateFromPoints(
+                    new List<GpsCoordinate>
+                    {
+                        new GpsCoordinate() { x = 10 },
+                        new GpsCoordinate() { x = 20 },
+                        new GpsCoordinate() { x = -30 },
+                    }, 0)
+            };
+
+            RoadTracker.CleanupNeighbors(
+                n,
+                new GpsCoordinate() { x = 11 },
+                new GpsCoordinate() { x = 45 },
                 10);
 
             Assert.AreEqual(0, n.Count);
@@ -391,7 +464,7 @@ namespace GreenLightTracker.Test
 
             Assert.AreEqual(1, neighbors2.Count);
             Assert.AreEqual(0, neighbors2[0].PathId);
-            Assert.AreEqual(30, neighbors2[0].Point.x);
+            Assert.AreEqual(20, neighbors2[0].Point.x);
         }
 
         [Test]
@@ -440,10 +513,10 @@ namespace GreenLightTracker.Test
             var neighbors2 = (List<PathPoint>)roadTracker.GetNeighbors(false);
 
             Assert.AreEqual(2, neighbors1.Count);
-            Assert.AreEqual(0, neighbors2[0].PathId);
-            Assert.AreEqual(30, neighbors2[0].Point.x);
-            Assert.AreEqual(1, neighbors2[1].PathId);
-            Assert.AreEqual(30, neighbors2[1].Point.x);
+            Assert.AreEqual(1, neighbors2[0].PathId);
+            Assert.AreEqual(25, neighbors2[0].Point.x);
+            Assert.AreEqual(0, neighbors2[1].PathId);
+            Assert.AreEqual(20, neighbors2[1].Point.x);
         }
 
         [Test]
@@ -471,7 +544,7 @@ namespace GreenLightTracker.Test
                 new GpsCoordinate{ x = 15 },
             });
 
-            var pathMapper = new PathMapper(10);
+            var pathMapper = new PathMapper(9);
             pathMapper.PutPointList(pathPoints);
 
             var roadTracker = new RoadTracker();
@@ -487,11 +560,11 @@ namespace GreenLightTracker.Test
             Assert.AreEqual(0, neighbors1[1].PathId);
             Assert.AreEqual(10, neighbors1[1].Point.x);
 
-            roadTracker.TrackPoint(new GpsCoordinate { x = 25 });
+            roadTracker.TrackPoint(new GpsCoordinate { x = 35 });
 
             var neighbors2 = (List<PathPoint>)roadTracker.GetNeighbors(false);
 
-            Assert.AreEqual(1, neighbors1.Count);
+            Assert.AreEqual(1, neighbors2.Count);
             Assert.AreEqual(0, neighbors2[0].PathId);
             Assert.AreEqual(30, neighbors2[0].Point.x);
         }
