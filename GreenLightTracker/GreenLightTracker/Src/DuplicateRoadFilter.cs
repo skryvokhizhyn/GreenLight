@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Linq;
 using System.Collections.Generic;
 
 namespace GreenLightTracker.Src
@@ -12,179 +12,7 @@ namespace GreenLightTracker.Src
             m_pointsTolerance = pointsTolerance;
         }
 
-        //public ICollection<GpsCoordinate> Process(ICollection<GpsCoordinate> points)
-        //{
-        //    var splitter = new RoadSplitter(points, m_pointsTolerance);
-        //    var mapper = new PathMapper();
-
-        //    while (true)
-        //    {
-        //        var path = splitter.Next();
-
-        //        if (path == null)
-        //            break;
-
-        //        var pathList = (List<GpsCoordinate>)path;
-        //        var i = 0;
-
-        //        while (i < pathList.Count)
-        //        {
-        //            IList<PathPoint> neighbors = null;
-
-        //            var tempPoints = GetPointsTillNeighbor(i, pathList, mapper, out neighbors);
-
-        //            i += tempPoints.Count;
-
-        //            //mapper.PutPoints(tempPoints);
-
-        //            if (neighbors == null ||i == pathList.Count)
-        //            {
-        //                continue;
-        //            }
-
-        //            i = SkipPointsOnPath(i, pathList, neighbors);
-        //        }
-        //    }
-
-        //    return mapper.GetPoints();
-        //}
-
-        //private List<GpsCoordinate> GetPointsTillNeighbor(int i, List<GpsCoordinate> pathList, PathMapper mapper,
-        //    out IList<PathPoint> neighbors)
-        //{
-        //    var tempPoints = new List<GpsCoordinate>();
-        //    neighbors = null;
-
-        //    while (i < pathList.Count)
-        //    {
-        //        var p = pathList[i];
-
-        //        neighbors = mapper.GetNearestPointsFiltered(p);
-
-        //        if (neighbors != null)
-        //        {
-        //            break;
-        //        }
-
-        //        tempPoints.Add(p);
-
-        //        ++i;
-        //    }
-
-        //    if (i == pathList.Count)
-        //    {
-        //        return tempPoints;
-        //    }
-
-        //    var prevPoint = pathList[i];
-
-        //    ++i;
-
-        //    // Process points between last and neighbor
-        //    while (i < pathList.Count)
-        //    {
-        //        var p = pathList[i];
-
-        //        var hasIntersection = false;
-        //        var dist1 = PointUtils.GetDistance(prevPoint, p);
-
-        //        foreach (var n in neighbors)
-        //        {
-        //            var dist2 = PointUtils.GetDistance(prevPoint, n.Point);
-
-        //            if (dist1 > dist2)
-        //            {
-        //                hasIntersection = true;
-        //                break;
-        //            }
-        //        }
-
-        //        if (hasIntersection)
-        //        {
-        //            tempPoints.Add(p);
-        //            break;
-        //        }
-
-        //        tempPoints.Add(prevPoint);
-
-        //        prevPoint = p;
-
-        //        ++i;
-        //    }
-
-        //    return tempPoints;
-        //}
-
-        //private int SkipPointsOnPath(int i, List<GpsCoordinate> pathList, IList<PathPoint> neighbors)
-        //{
-        //    while (i < pathList.Count)
-        //    {
-        //        var p = pathList[i];
-
-        //        AdvanceNeighbors(p, neighbors);
-        //        RemoveNeighborsWithoutNext(neighbors);
-
-        //        if (!IsOnPath(p, neighbors))
-        //            break;
-
-        //        ++i;
-        //    }
-
-        //    return i;
-        //}
-
-        //private static void AdvanceNeighbors(GpsCoordinate point, IList<PathPoint> neighbors)
-        //{
-        //    var neighborsList = (List<PathPoint>)neighbors;
-
-        //    for (var i = 0; i< neighborsList.Count; ++i)
-        //    {
-        //        var n = neighborsList[i];
-
-        //        while (n.Next != null)
-        //        {
-        //            var dist1 = PointUtils.GetDistance(n.Point, point);
-        //            var dist2 = PointUtils.GetDistance(n.Point, n.Next.Point);
-
-        //            if (dist1 >= dist2)
-        //            {
-        //                n = n.Next;
-        //            }
-        //            else
-        //            {
-        //                break;
-        //            }
-        //        }
-        //    }
-        //}
-
-        //private static void RemoveNeighborsWithoutNext(IList<PathPoint> neighbors)
-        //{
-        //    var neighborsList = (List<PathPoint>)neighbors;
-
-        //    neighborsList.RemoveAll(n => { return n.Next == null; });
-        //}
-
-        //private static bool IsOnPath(GpsCoordinate point, IList<PathPoint> neighbors)
-        //{
-        //    var isOnPath = false;
-
-        //    foreach (var n in neighbors)
-        //    {
-        //        var dist1 = PointUtils.GetDistance(n.Point, point);
-        //        var dist2 = PointUtils.GetDistance(n.Point, n.Next.Point);
-
-        //        if (dist1 <= dist2)
-        //        {
-        //            isOnPath = true;
-        //            break;
-        //        }
-        //    }
-
-        //    return isOnPath;
-        //}
-
-        public void Process(ICollection<PathData> paths)
+        public void Process(ICollection<PathData> paths, PathConnections pathConnections = null)
         {
             if (paths == null)
                 return;
@@ -202,15 +30,38 @@ namespace GreenLightTracker.Src
 
                 var pointIndex = 0;
 
+                var pointToNeighborPathId = new MultiValueDictionary<GpsCoordinate, int>();
+                var allColinearPathIds = new HashSet<int>();
+
+                List<int> prevColinearPathIds = null;
+
                 while (pointIndex < pathData.Points.Count)
                 {
                     var point = pathData.Points[pointIndex];
 
                     var nearestPoints = mapper.GetNearestPointsFiltered(point);
-                    if (AtLeastOneNeighborIsColinear(nearestPoints, pathData.Points, pointIndex))
+
+                    var colinearPathIds = GetColinearPathIds(nearestPoints, pathData.Points, pointIndex);
+                    if (colinearPathIds != null && colinearPathIds.Count > 0)
                     {
+                        if (pointIndex > 0)
+                        {
+                            var prevPoint = pathData.Points[pointIndex - 1];
+
+                            if (prevPoint != null)
+                            {
+                                pointToNeighborPathId.AddRange(prevPoint, colinearPathIds);
+                            }
+                        }
+
                         pathData.Points[pointIndex] = null;
                     }
+                    else if (prevColinearPathIds != null)
+                    {
+                        prevColinearPathIds.ForEach(id => pointToNeighborPathId.Add(point, id));
+                    }
+
+                    prevColinearPathIds = colinearPathIds;
 
                     ++pointIndex;
                 }
@@ -225,6 +76,8 @@ namespace GreenLightTracker.Src
                     {
                         var newPath = new PathData();
                         newPath.Points = points;
+
+                        FillConnections(pointToNeighborPathId, newPath, pathConnections);
 
                         newPathsList.Add(newPath);
                     }
@@ -246,6 +99,12 @@ namespace GreenLightTracker.Src
                     else
                     {
                         pathData.Points.RemoveAll(p => p == null);
+
+                        if (pathData.Points.Count > 0)
+                        {
+                            FillConnections(pointToNeighborPathId, pathData, pathConnections);
+                        }
+
                         mapper.PutPoints(PathPoint.CreateFromPathData(pathData));
                     }
                 }
@@ -253,7 +112,7 @@ namespace GreenLightTracker.Src
                 {
                     pathsList[pathIndex] = null;
                 }
-                
+
                 ++pathIndex;
             }
 
@@ -261,13 +120,46 @@ namespace GreenLightTracker.Src
             pathsList.AddRange(newPathsListTotal);
         }
 
+        public static void FillConnections(MultiValueDictionary<GpsCoordinate, int> mapping, PathData pathData, PathConnections connections)
+        {
+            if (connections == null)
+                return;
+
+            // Process path end
+            IEnumerable<int> pathIds;
+            if (mapping.TryGetValues(pathData.Points.Last(), out pathIds))
+            {
+                foreach (var pathId in pathIds)
+                {
+                    connections.Add(pathData.Id, pathId);
+                }
+            }
+
+            if (mapping.TryGetValues(pathData.Points.First(), out pathIds))
+            {
+                foreach (var pathId in pathIds)
+                {
+                    connections.Add(pathId, pathData.Id);
+                }
+            }
+        }
+
         public static bool AtLeastOneNeighborIsColinear(IEnumerable<PathPoint> nearestPoints, List<GpsCoordinate> points, int pointIndex)
         {
-            if (nearestPoints == null)
+            var colinearPathIds = GetColinearPathIds(nearestPoints, points, pointIndex);
+
+            if (colinearPathIds == null)
                 return false;
 
-            if (pointIndex >= points.Count - 1)
-                return false;
+            return colinearPathIds.Count > 0;
+        }
+
+        public static List<int> GetColinearPathIds(IEnumerable<PathPoint> nearestPoints, List<GpsCoordinate> points, int pointIndex)
+        {
+            if (nearestPoints == null)
+                return null;
+
+            var colinearPathIds = new List<int>();
 
             foreach (var nearestPathPoint in nearestPoints)
             {
@@ -286,16 +178,27 @@ namespace GreenLightTracker.Src
                 else
                     continue;
 
-                if (PointUtils.CheckColinear(
+                bool prevSectionIsColinear = pointIndex > 0 && points[pointIndex - 1] != null
+                    ? PointUtils.CheckColinear(
+                        PointUtils.GetDirection(points[pointIndex - 1], points[pointIndex]),
+                        nearestPathVector,
+                        20)
+                    : true;
+
+                bool nextSectionIsColinear = pointIndex < points.Count - 1
+                    ? PointUtils.CheckColinear(
                         PointUtils.GetDirection(points[pointIndex], points[pointIndex + 1]),
                         nearestPathVector,
-                        20))
+                        20)
+                    : true;
+
+                if (prevSectionIsColinear && nextSectionIsColinear)
                 {
-                    return true;
+                    colinearPathIds.Add(nearestPathPoint.PathId);
                 }
             }
 
-            return false;
+            return colinearPathIds;
         }
     }
 }

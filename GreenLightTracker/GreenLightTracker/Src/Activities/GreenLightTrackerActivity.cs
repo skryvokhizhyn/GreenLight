@@ -21,6 +21,7 @@ namespace GreenLightTracker.Src.Activities
         PathView m_pathView = null;
         RoadTracker m_roadTracker = new RoadTracker();
         RoadInformation m_roadInformation = new RoadInformation();
+        WakeLockWrapper m_wakeLock = null;
 
         private static Logger m_logger = LogManager.GetCurrentClassLogger();
 
@@ -38,6 +39,8 @@ namespace GreenLightTracker.Src.Activities
             m_eventConnectionManager = new EventsConnectionManager(m_locationManager, m_queryManager, m_roadTracker, this);
 
             m_pathView = FindViewById<PathView>(Resource.Id.path_view);
+
+            m_wakeLock = new WakeLockWrapper(this);
         }
 
         protected override void OnDestroy()
@@ -81,6 +84,8 @@ namespace GreenLightTracker.Src.Activities
 
             FindViewById<Button>(Resource.Id.collect_button).Enabled = false;
             FindViewById<Button>(Resource.Id.stop_button).Enabled = true;
+
+            m_wakeLock.Acquire();
         }
 
         [Java.Interop.Export()]
@@ -93,6 +98,8 @@ namespace GreenLightTracker.Src.Activities
             FindViewById<Button>(Resource.Id.stop_button).Enabled = false;
             FindViewById<Button>(Resource.Id.collect_button).Enabled = true;
             FindViewById<Button>(Resource.Id.track_button).Enabled = true;
+
+            m_wakeLock.Release();
         }
 
         [Java.Interop.Export()]
@@ -116,6 +123,8 @@ namespace GreenLightTracker.Src.Activities
 
             FindViewById<Button>(Resource.Id.track_button).Enabled = false;
             FindViewById<Button>(Resource.Id.stop_button).Enabled = true;
+
+            m_wakeLock.Acquire();
         }
 
         [Java.Interop.Export()]

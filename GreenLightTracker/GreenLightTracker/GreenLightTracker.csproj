@@ -73,13 +73,15 @@
     <Compile Include="Src\DuplicateRoadFilter.cs" />
     <Compile Include="Src\EventsConnectionManager.cs" />
     <Compile Include="Src\GpsCoordinate.cs" />
+    <Compile Include="Src\GpsCoordinateEqalityComparer.cs" />
     <Compile Include="Src\GpsLocationFactory.cs" />
     <Compile Include="Src\GpsLocationManager.cs" />
     <Compile Include="Src\GpsUtils.cs" />
     <Compile Include="Src\Activities\GreenLightTrackerActivity.cs" />
     <Compile Include="Src\GpsLocation.cs" />
     <Compile Include="Src\MapperCell.cs" />
-    <Compile Include="Src\PathConnection.cs" />
+    <Compile Include="Src\MultiValueDictionary.cs" />
+    <Compile Include="Src\PathConnections.cs" />
     <Compile Include="Src\PathData.cs" />
     <Compile Include="Src\PathId.cs" />
     <Compile Include="Src\PathPoint.cs" />
@@ -92,6 +94,7 @@
     <Compile Include="Src\RoadInformation.cs" />
     <Compile Include="Src\RoadSplitter.cs" />
     <Compile Include="Src\RoadTracker.cs" />
+    <Compile Include="Src\WakeLockWrapper.cs" />
   </ItemGroup>
   <ItemGroup>
     <AndroidAsset Include="Assets\NLog.config" />

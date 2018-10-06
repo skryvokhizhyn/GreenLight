@@ -3,44 +3,15 @@ using System.Linq;
 
 namespace GreenLightTracker.Src
 {
-    public class GpsCoordinateEqalityComparer : IEqualityComparer<GpsCoordinate>
-    {
-        private readonly float PRECISION = 1000.0f;
-
-        public int GetHashCode(GpsCoordinate p)
-        {
-            int x = (int)(p.x * PRECISION);
-            int y = (int)(p.y * PRECISION);
-            int z = (int)(p.z * PRECISION);
-
-            int hash = 17;
-            hash = hash * 23 + x.GetHashCode();
-            hash = hash * 23 + y.GetHashCode();
-            hash = hash * 23 + z.GetHashCode();
-            return hash;
-        }
-
-        public bool Equals(GpsCoordinate lp, GpsCoordinate rp)
-        {
-            int lpx = (int)(lp.x * PRECISION);
-            int lpy = (int)(lp.y * PRECISION);
-            int lpz = (int)(lp.z * PRECISION);
-
-            int rpx = (int)(rp.x * PRECISION);
-            int rpy = (int)(rp.y * PRECISION);
-            int rpz = (int)(rp.z * PRECISION);
-
-            return lpx == rpx && lpy == rpy && lpz == rpz;
-        }
-    }
-
     public class RoadSplitter
     {
         private readonly float m_tolerance;
+        private readonly PathConnections m_connections;
 
-        public RoadSplitter(float tolerance)
+        public RoadSplitter(float tolerance, PathConnections connections)
         {
             m_tolerance = tolerance;
+            m_connections = connections;
         }
 
         class PointAndDistance
@@ -58,7 +29,7 @@ namespace GreenLightTracker.Src
 
             var mapper = new PathMapper(m_tolerance);
 
-            var intersectionPoints = new HashSet<GpsCoordinate>(new GpsCoordinateEqalityComparer());
+            var intersectionPoints = new HashSet<GpsCoordinate>();
 
             foreach (var path in paths) 
             {
@@ -73,6 +44,9 @@ namespace GreenLightTracker.Src
                         // update neighbors distances
                         foreach (var neighbor in neighbors)
                         {
+                            if (m_connections != null && !m_connections.HasConnection(path.Id, neighbor.PathId))
+                                continue;
+
                             var dist = PointUtils.GetDistance(point, neighbor.Point);
 
                             PointAndDistance distance;

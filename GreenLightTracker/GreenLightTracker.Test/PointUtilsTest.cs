@@ -308,6 +308,20 @@ namespace GreenLightTracker.Test
         }
 
         [Test]
+        public void SplitPointsHasNullsAtEndTest1()
+        {
+            var res = (List<List<GpsCoordinate>>)PointUtils.SplitPoints(
+                new List<GpsCoordinate>()
+                {
+                    new GpsCoordinate(),
+                    null
+                });
+
+            Assert.AreEqual(1, res.Count);
+            Assert.AreEqual(1, res[0].Count);
+        }
+
+        [Test]
         public void SplitPathDataAtIndexTest1()
         {
             var pathsData = PointUtils.CreateFromPoints(

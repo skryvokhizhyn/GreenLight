@@ -85,7 +85,8 @@ namespace GreenLightTracker.Src
             var enrichedCount = PointUtils.GetPointsCount(pathPoints);
 
             var duplicatesFilter = new DuplicateRoadFilter(10 /*m*/);
-            duplicatesFilter.Process(pathPoints);
+            var pathConnections = new PathConnections();
+            duplicatesFilter.Process(pathPoints, pathConnections);
 
             var deduplicatedCount = PointUtils.GetPointsCount(pathPoints);
 
@@ -93,8 +94,8 @@ namespace GreenLightTracker.Src
 
             var shortenedCount = PointUtils.GetPointsCount(pathPoints);
 
-            var roadSplitter = new RoadSplitter(10 /*m*/);
-            roadSplitter.Process(pathPoints);
+            //var roadSplitter = new RoadSplitter(10 /*m*/);
+            //roadSplitter.Process(pathPoints);
 
             // Remove after splitting short artifacts
             //PointUtils.RemoveShortPaths(pathPoints, 4 /*m*/);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace GreenLightTracker.Src
 {
@@ -213,6 +214,11 @@ namespace GreenLightTracker.Src
                 {
                     res[res.Count - 1].Add(p);
                 }
+            }
+
+            if (res.Count > 0 && res.Last().Count == 0)
+            {
+                res.RemoveAt(res.Count - 1);
             }
 
             return res;

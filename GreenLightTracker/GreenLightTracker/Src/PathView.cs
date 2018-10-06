@@ -104,6 +104,8 @@ namespace GreenLightTracker.Src
                 YMax = Math.Max(YMax, car.y);
 
                 m_carPosition = new float[2];
+                m_carPosition[0] = (float)car.x;
+                m_carPosition[1] = (float)car.y;
 
                 ScalePoints(m_carPosition, XMin, YMin, XMax, YMax);
             }

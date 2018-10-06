@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="DuplicateRoadFilterTest.cs" />
     <Compile Include="GpsUtilsTest.cs" />
+    <Compile Include="PathConnectionTest.cs" />
     <Compile Include="PathMapperTest.cs" />
     <Compile Include="PointUtilsTest.cs" />
     <Compile Include="RoadSplitterTest.cs" />
