@@ -11,7 +11,6 @@ namespace GreenLightTracker.Src
     {
         private float[] m_allPoints;
         private float[] m_carPosition;
-        private List<float[]> m_roadEndPositions = new List<float[]>();
 
         private List<float[]> m_coloredPoints = new List<float[]>();
         private readonly Color[] m_colorsForPoints;
@@ -156,9 +155,6 @@ namespace GreenLightTracker.Src
             ScalePoints(rawPoints, XMin, YMin, XMax, YMax);
 
             m_coloredPoints.Add(rawPoints);
-
-            var roadEndPositions = new float[4] { rawPoints[0], rawPoints[1], rawPoints[i - 2], rawPoints[i - 1] };
-            m_roadEndPositions.Add(roadEndPositions);
         }
 
         public void ResetColoredPoints()
@@ -185,17 +181,8 @@ namespace GreenLightTracker.Src
                 {
                     var colorIndex = i++ % m_colorsForPoints.Length;
                     canvas.DrawPoints(points, 0, points.Length, new Paint { Color = m_colorsForPoints[colorIndex] });
-                }
-            }
-
-            {
-                var i = 0;
-                foreach (var roadEndPosition in m_roadEndPositions)
-                {
-                    var colorIndex = i++ % m_colorsForPoints.Length;
-                    canvas.DrawCircle(roadEndPosition[0], roadEndPosition[1], 4.0f, new Paint { Color = m_colorsForPoints[colorIndex] });
-                    colorIndex = i++ % m_colorsForPoints.Length;
-                    canvas.DrawCircle(roadEndPosition[2], roadEndPosition[3], 4.0f, new Paint { Color = m_colorsForPoints[colorIndex] });
+                    canvas.DrawCircle(points[0], points[1], 4.0f, new Paint { Color = m_colorsForPoints[colorIndex] });
+                    canvas.DrawCircle(points[points.Length - 2], points[points.Length - 1], 4.0f, new Paint { Color = m_colorsForPoints[colorIndex] });
                 }
             }
 

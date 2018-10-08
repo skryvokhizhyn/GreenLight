@@ -24,5 +24,29 @@ namespace GreenLightTracker.Test
 
             Assert.IsTrue(pathConnection.HasConnection(0, 1));
         }
+
+        [Test]
+        public void PathConnectionSplitEmptyTest1()
+        {
+            var pathConnection = new PathConnections();
+
+            pathConnection.Split(0, 0, 0);
+            Assert.IsTrue(pathConnection.IsEmpty());
+        }
+
+        [Test]
+        public void PathConnectionSplitBasicTest1()
+        {
+            var pathConnection = new PathConnections();
+            pathConnection.Add(2, 1);
+            pathConnection.Add(3, 1);
+            pathConnection.Add(1, 4);
+
+            pathConnection.Split(1, 5, 2);
+            Assert.IsTrue(pathConnection.HasConnection(2, 5));
+            Assert.IsTrue(pathConnection.HasConnection(3, 5));
+            Assert.IsTrue(pathConnection.HasConnection(1, 5));
+            Assert.IsTrue(pathConnection.HasConnection(5, 4));
+        }
     }
 }

@@ -1,34 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-using Android.App;
-using Android.Content;
-using Android.OS;
-using Android.Runtime;
-using Android.Views;
-using Android.Widget;
-
+﻿
 namespace GreenLightTracker.Src
 {
     class RoadInformation
     {
-        private int m_roadLightId = -1;
+        private int m_currentRoadId = -1;
 
-        public delegate void NewRoadLightHandler(int id);
-        public event NewRoadLightHandler RoadLightFound;
+        public delegate void NewRoadFoundHandler(int id);
+        public event NewRoadFoundHandler NewRoadFound;
+
+        public delegate void CarMovedHandler(GpsCoordinate position);
+        public event CarMovedHandler CarMoved;
+
+        public const int InvalidRoadId = -1;
 
         public void OnPathPointFound(PathPoint p)
         {
-            int foundRoadLightId = p != null ? p.PathId : -1;
+            if (p == null)
+                m_currentRoadId = InvalidRoadId;
+            else if (p.PathId != m_currentRoadId)
+                m_currentRoadId = p.PathId;
+            else
+                return;
 
-            if (m_roadLightId != foundRoadLightId)
-            {
-                m_roadLightId = foundRoadLightId;
+            NewRoadFound(m_currentRoadId);
+        }
 
-                RoadLightFound(m_roadLightId);
-            }
+        public void OnGpsLocationReceived(GpsLocation point)
+        {
+            CarMoved(GpsUtils.GetCoordinateFromLocation(point));
         }
     }
 }

@@ -36,7 +36,7 @@ namespace GreenLightTracker.Src.Activities
 
             m_locationManager = new GpsLocationManager(this);
 
-            m_eventConnectionManager = new EventsConnectionManager(m_locationManager, m_queryManager, m_roadTracker, this);
+            m_eventConnectionManager = new EventsConnectionManager(m_locationManager, m_queryManager, m_roadTracker, m_roadInformation, this);
 
             m_pathView = FindViewById<PathView>(Resource.Id.path_view);
 
@@ -206,39 +206,45 @@ namespace GreenLightTracker.Src.Activities
             UpdateTakenRowCount();
         }
 
-        public void OnRoadLightFound(GpsCoordinate position, PathPoint pathPoint, int count)
+        public void OnCarMoved(GpsCoordinate position)
         {
-            if (pathPoint != null)
-            {
-                FindViewById<TextView>(Resource.Id.row_road_id).Text = pathPoint.PathId.ToString();
-                FindViewById<TextView>(Resource.Id.row_road_id).SetBackgroundColor(new Color(Color.Magenta));
-                FindViewById<TextView>(Resource.Id.row_neighbors_count).Text = count.ToString();
+            m_pathView.SetCarPosition(position);
+            m_pathView.Invalidate();
+        }
 
-                m_pathView.SetCarPosition(position);
-                // TODO: don't process SetPoints if pathId hasn't changed
-                //var pathPoints = m_roadTracker.GetPathById(pathPoint.PathId);
-                var pathPoints = m_roadTracker.GetPointsStartingAtPath(pathPoint.PathId, 0);
-                //m_pathView.SetPoints(pathPoints);
-                m_pathView.AppendCoredPoints(pathPoints);
-                m_pathView.Invalidate();
-            }
-            else
+        public void OnRoadFound(int pathId)
+        {
+            if (pathId == RoadInformation.InvalidRoadId)
             {
                 FindViewById<TextView>(Resource.Id.row_road_id).Text = "N/A";
                 FindViewById<TextView>(Resource.Id.row_road_id).SetBackgroundColor(new Color(Color.White));
-                FindViewById<TextView>(Resource.Id.row_neighbors_count).Text = "-1";
 
-                m_pathView.SetCarPosition(null);
                 m_pathView.SetPoints(null);
-                m_pathView.Invalidate();
+            }
+            else
+            {
+                FindViewById<TextView>(Resource.Id.row_road_id).Text = pathId.ToString();
+                FindViewById<TextView>(Resource.Id.row_road_id).SetBackgroundColor(new Color(Color.Magenta));
+
+                var pathPoints = m_roadTracker.GetPathById(pathId);
+                m_pathView.AppendCoredPoints(pathPoints);
             }
 
-            FindViewById<TextView>(Resource.Id.row_neighbors_count).SetBackgroundColor(new Color(Color.White));
+            m_pathView.Invalidate();
         }
 
-        public void OnNeighborsLost()
+        public void OnNeighborsUpdated(int count)
         {
-            FindViewById<TextView>(Resource.Id.row_neighbors_count).SetBackgroundColor(new Color(Color.Moccasin));
+            if (count == -1)
+            {
+                FindViewById<TextView>(Resource.Id.row_neighbors_count).SetBackgroundColor(new Color(Color.Moccasin));
+            }
+            else
+            {
+                FindViewById<TextView>(Resource.Id.row_neighbors_count).SetBackgroundColor(new Color(Color.White));
+            }
+
+            FindViewById<TextView>(Resource.Id.row_neighbors_count).Text = count.ToString();
         }
     }
 }

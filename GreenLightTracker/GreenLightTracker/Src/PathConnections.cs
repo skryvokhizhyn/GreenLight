@@ -39,5 +39,38 @@ namespace GreenLightTracker.Src
         {
             return m_pathToPathConnections.Count == 0;
         }
+
+        public void Split(int toSplitPathId, int generatedPathId, int causedSplitPathId)
+        {
+            if (!m_pathToPathConnections.ContainsKey(toSplitPathId))
+                return;
+
+            HashSet<int> currentlyMappedIds;
+            m_pathToPathConnections.TryGetValue(toSplitPathId, out currentlyMappedIds);
+
+            m_pathToPathConnections.Remove(toSplitPathId);
+
+            Add(toSplitPathId, generatedPathId);
+            Add(causedSplitPathId, generatedPathId);
+
+            // Move links from original path to newly generated           
+            if (currentlyMappedIds != null)
+            {
+                foreach (var pId in currentlyMappedIds)
+                {
+                    Add(generatedPathId, pId);
+                }
+            }
+
+            // Replace links to original path with newly generated one
+            foreach (var pathToConnections in m_pathToPathConnections)
+            {
+                if (pathToConnections.Value.Contains(toSplitPathId))
+                {
+                    pathToConnections.Value.Remove(toSplitPathId);
+                    pathToConnections.Value.Add(generatedPathId);
+                }
+            }
+        }
     }
 }

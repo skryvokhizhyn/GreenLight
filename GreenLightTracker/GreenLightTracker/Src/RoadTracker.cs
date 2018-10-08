@@ -9,11 +9,13 @@ namespace GreenLightTracker.Src
         private List<PathPoint> m_neighbors = null;
         private GpsCoordinate m_previousPoint = null;
 
-        public delegate void NewPathPointHandler(GpsCoordinate position, PathPoint p, int count);
-        public event NewPathPointHandler PathPointFound;
+        //public delegate void NewPathPointHandler(GpsCoordinate position, PathPoint p, int count);
+        //public event NewPathPointHandler PathPointFound;
+        public delegate void NewPathPointFoundHandler(PathPoint p);
+        public event NewPathPointFoundHandler NewPathPointFound;
 
-        public delegate void NeighborsLostHandler();
-        public event NeighborsLostHandler NeighborsLost;
+        public delegate void NeighborsUpdatedHandler(int count);
+        public event NeighborsUpdatedHandler NeighborsUpdated;
 
         public RoadTracker(PathMapper mapper = null)
         {
@@ -30,36 +32,36 @@ namespace GreenLightTracker.Src
             return m_mapper.GetPoints(id);
         }
 
-        public ICollection<GpsCoordinate> GetPointsStartingAtPath(int id, float distance)
-        {
-            var result = new List<GpsCoordinate>();
+        //public ICollection<GpsCoordinate> GetPointsStartingAtPath(int id, float distance)
+        //{
+        //    var result = new List<GpsCoordinate>();
 
-            var pathToProcess = new List<int> { id };
+        //    var pathToProcess = new List<int> { id };
 
-            var processedPoints = new HashSet<int>();
+        //    var processedPoints = new HashSet<int>();
 
-            while (pathToProcess.Count > 0)
-            {
-                var path = GetPathById(pathToProcess[0]);
+        //    while (pathToProcess.Count > 0)
+        //    {
+        //        var path = GetPathById(pathToProcess[0]);
 
-                pathToProcess.RemoveAt(0);
+        //        pathToProcess.RemoveAt(0);
 
-                result.AddRange(path);
+        //        result.AddRange(path);
 
-                var neighbors = m_mapper.GetNearestPointsFiltered(result[result.Count - 1]);
+        //        var neighbors = m_mapper.GetNearestPointsFiltered(result[result.Count - 1]);
 
-                foreach (var n in neighbors)
-                {
-                    if (!processedPoints.Contains(n.PathId))
-                    {
-                        pathToProcess.Add(n.PathId);
-                        processedPoints.Add(n.PathId);
-                    }
-                }
-            }
+        //        foreach (var n in neighbors)
+        //        {
+        //            if (!processedPoints.Contains(n.PathId))
+        //            {
+        //                pathToProcess.Add(n.PathId);
+        //                processedPoints.Add(n.PathId);
+        //            }
+        //        }
+        //    }
 
-            return result;
-        }
+        //    return result;
+        //}
 
         public bool IsInitialized()
         {
@@ -84,8 +86,17 @@ namespace GreenLightTracker.Src
 
                 if (m_neighbors == null || m_neighbors.Count == 0)
                 {
-                    if (hadNeighbors && NeighborsLost != null)
-                        NeighborsLost();
+                    if (NeighborsUpdated != null)
+                    {
+                        if (hadNeighbors)
+                        {
+                            NeighborsUpdated(-1);
+                        }
+                        else
+                        {
+                            NeighborsUpdated(m_neighbors != null ? m_neighbors.Count : 0);
+                        }
+                    }
 
                     m_neighbors = m_mapper.GetNearestPointsFiltered(point);
 
@@ -121,7 +132,8 @@ namespace GreenLightTracker.Src
         {
             var pathPoint = TrackPoint(point);
 
-            PathPointFound(point, pathPoint, m_neighbors != null ? m_neighbors.Count : 0);
+            //PathPointFound(point, pathPoint, m_neighbors != null ? m_neighbors.Count : 0);
+            NewPathPointFound(pathPoint);
         }
 
         public static void CleanupNeighbors(IList<PathPoint> neighbors, GpsCoordinate currentPoint, GpsCoordinate nextPoint, float tolerance)

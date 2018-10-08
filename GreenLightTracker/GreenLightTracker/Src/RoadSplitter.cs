@@ -130,9 +130,6 @@ namespace GreenLightTracker.Src
 
                 ++currentPathIndex;
             }
-
-            // TODO: ignore splitting neighbors if they are directed in differently (opposite road)
-            // TODO: Don't split when it's first or last point on the path
         }
     }
 }
