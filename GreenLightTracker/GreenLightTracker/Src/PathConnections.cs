@@ -40,7 +40,7 @@ namespace GreenLightTracker.Src
             return m_pathToPathConnections.Count == 0;
         }
 
-        public void Split(int toSplitPathId, int generatedPathId, int causedSplitPathId)
+        public void Split(int toSplitPathId, int generatedPathId, int causedSplitPathId, bool isInPath)
         {
             if (!m_pathToPathConnections.ContainsKey(toSplitPathId))
                 return;
@@ -51,7 +51,15 @@ namespace GreenLightTracker.Src
             m_pathToPathConnections.Remove(toSplitPathId);
 
             Add(toSplitPathId, generatedPathId);
-            Add(causedSplitPathId, generatedPathId);
+
+            if (isInPath)
+            {
+                Add(causedSplitPathId, generatedPathId);
+            }
+            else
+            {
+                Add(toSplitPathId, causedSplitPathId);
+            }
 
             // Move links from original path to newly generated           
             if (currentlyMappedIds != null)

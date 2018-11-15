@@ -108,21 +108,17 @@ namespace GreenLightTracker.Test
 
             var pathList = (List<PathData>)paths;
 
-            Assert.AreEqual(4, pathList.Count);
+            Assert.AreEqual(2, pathList.Count);
 
-            Assert.AreEqual(2, pathList[0].Points.Count);
+            Assert.AreEqual(3, pathList[0].Points.Count);
             Assert.AreEqual(-1, pathList[0].Points[0].x);
             Assert.AreEqual(0, pathList[0].Points[1].x);
+            Assert.AreEqual(1, pathList[0].Points[2].x);
 
-            Assert.AreEqual(2, pathList[1].Points.Count);
+            Assert.AreEqual(3, pathList[1].Points.Count);
             Assert.AreEqual(-1, pathList[1].Points[0].y);
             Assert.AreEqual(0, pathList[1].Points[1].y);
-
-            Assert.AreEqual(1, pathList[2].Points.Count);
-            Assert.AreEqual(1, pathList[2].Points[0].x);
-
-            Assert.AreEqual(1, pathList[3].Points.Count);
-            Assert.AreEqual(1, pathList[3].Points[0].y);
+            Assert.AreEqual(1, pathList[1].Points[2].y);
         }
 
         [Test]
@@ -159,7 +155,48 @@ namespace GreenLightTracker.Test
         }
 
         [Test]
-        public void RoadSplitterComingCloserTest1()
+        public void RoadSplitterFirstShorterEndTest1()
+        {
+            var paths = PointUtils.CreateFromPoints(
+                new List<GpsCoordinate>()
+                {
+                    new GpsCoordinate(){ x = 0 },
+                    new GpsCoordinate(){ x = 1 },
+                    new GpsCoordinate(){ x = 2 },
+                    new GpsCoordinate(){ x = 3 },
+
+                    new GpsCoordinate(){ x = 0, y = 2 },
+                    new GpsCoordinate(){ x = 1, y = 1 },
+                    new GpsCoordinate(){ x = 2, y = 0.5 },
+                    new GpsCoordinate(){ x = 3, y = 0.1 },
+                    new GpsCoordinate(){ x = 4, y = 0.5 },
+                }, 2);
+
+            var splitter = new RoadSplitter(1, null);
+            splitter.Process(paths);
+
+            var pathList = (List<PathData>)paths;
+
+            Assert.AreEqual(3, pathList.Count);
+
+            Assert.AreEqual(4, pathList[0].Points.Count);
+            Assert.AreEqual(0, pathList[0].Points[0].x);
+            Assert.AreEqual(1, pathList[0].Points[1].x);
+            Assert.AreEqual(2, pathList[0].Points[2].x);
+            Assert.AreEqual(3, pathList[0].Points[3].x);
+
+            Assert.AreEqual(4, pathList[1].Points.Count);
+            Assert.AreEqual(2, pathList[1].Points[0].y);
+            Assert.AreEqual(1, pathList[1].Points[1].y);
+            Assert.AreEqual(0.5, pathList[1].Points[2].y);
+            Assert.AreEqual(0.1, pathList[1].Points[3].y);
+
+            Assert.AreEqual(1, pathList[2].Points.Count);
+            Assert.AreEqual(0.5, pathList[2].Points[0].y);
+        }
+
+        [Test]
+        public void RoadSplitterSecondShorterEndTest1()
         {
             var paths = PointUtils.CreateFromPoints(
                 new List<GpsCoordinate>()
@@ -174,15 +211,14 @@ namespace GreenLightTracker.Test
                     new GpsCoordinate(){ x = 1, y = 1 },
                     new GpsCoordinate(){ x = 2, y = 0.5 },
                     new GpsCoordinate(){ x = 3, y = 0.1 },
-                    new GpsCoordinate(){ x = 4, y = 0.5 },
                 }, 2);
 
-            var splitter = new RoadSplitter(5, null);
+            var splitter = new RoadSplitter(1, null);
             splitter.Process(paths);
 
             var pathList = (List<PathData>)paths;
 
-            Assert.AreEqual(4, pathList.Count);
+            Assert.AreEqual(3, pathList.Count);
 
             Assert.AreEqual(4, pathList[0].Points.Count);
             Assert.AreEqual(0, pathList[0].Points[0].x);
@@ -198,9 +234,88 @@ namespace GreenLightTracker.Test
 
             Assert.AreEqual(1, pathList[2].Points.Count);
             Assert.AreEqual(4, pathList[2].Points[0].x);
+        }
 
-            Assert.AreEqual(1, pathList[3].Points.Count);
-            Assert.AreEqual(0.5, pathList[3].Points[0].y);
+        [Test]
+        public void RoadSplitterFirstShorterStartTest1()
+        {
+            var paths = PointUtils.CreateFromPoints(
+                new List<GpsCoordinate>()
+                {
+                    new GpsCoordinate(){ x = 0 },
+                    new GpsCoordinate(){ x = 1 },
+                    new GpsCoordinate(){ x = 2 },
+                    new GpsCoordinate(){ x = 3 },
+
+                    new GpsCoordinate(){ x = -1, y = 0.5 },
+                    new GpsCoordinate(){ x = 0, y = 0.1 },
+                    new GpsCoordinate(){ x = 1, y = 0.5 },
+                    new GpsCoordinate(){ x = 2, y = 1 },
+                    new GpsCoordinate(){ x = 3, y = 2 },
+                }, 2);
+
+            var splitter = new RoadSplitter(1, null);
+            splitter.Process(paths);
+
+            var pathList = (List<PathData>)paths;
+
+            Assert.AreEqual(3, pathList.Count);
+
+            Assert.AreEqual(4, pathList[0].Points.Count);
+            Assert.AreEqual(0, pathList[0].Points[0].x);
+            Assert.AreEqual(1, pathList[0].Points[1].x);
+            Assert.AreEqual(2, pathList[0].Points[2].x);
+            Assert.AreEqual(3, pathList[0].Points[3].x);
+
+            Assert.AreEqual(2, pathList[1].Points.Count);
+            Assert.AreEqual(0.5, pathList[1].Points[0].y);
+            Assert.AreEqual(0.1, pathList[1].Points[1].y);
+
+            Assert.AreEqual(3, pathList[2].Points.Count);
+            Assert.AreEqual(0.5, pathList[2].Points[0].y);
+            Assert.AreEqual(1, pathList[2].Points[1].y);
+            Assert.AreEqual(2, pathList[2].Points[2].y);
+        }
+
+        [Test]
+        public void RoadSplitterSecondShorterStartTest1()
+        {
+            var paths = PointUtils.CreateFromPoints(
+                new List<GpsCoordinate>()
+                {
+                    new GpsCoordinate(){ x = -1 },
+                    new GpsCoordinate(){ x = 0 },
+                    new GpsCoordinate(){ x = 1 },
+                    new GpsCoordinate(){ x = 2 },
+                    new GpsCoordinate(){ x = 3 },
+
+                    new GpsCoordinate(){ x = 0, y = 0.1 },
+                    new GpsCoordinate(){ x = 1, y = 0.5 },
+                    new GpsCoordinate(){ x = 2, y = 1 },
+                    new GpsCoordinate(){ x = 3, y = 2 },
+                }, 2);
+
+            var splitter = new RoadSplitter(1, null);
+            splitter.Process(paths);
+
+            var pathList = (List<PathData>)paths;
+
+            Assert.AreEqual(3, pathList.Count);
+
+            Assert.AreEqual(2, pathList[0].Points.Count);
+            Assert.AreEqual(-1, pathList[0].Points[0].x);
+            Assert.AreEqual(0, pathList[0].Points[1].x);
+
+            Assert.AreEqual(4, pathList[1].Points.Count);
+            Assert.AreEqual(0.1, pathList[1].Points[0].y);
+            Assert.AreEqual(0.5, pathList[1].Points[1].y);
+            Assert.AreEqual(1, pathList[1].Points[2].y);
+            Assert.AreEqual(2, pathList[1].Points[3].y);
+
+            Assert.AreEqual(3, pathList[2].Points.Count);
+            Assert.AreEqual(1, pathList[2].Points[0].x);
+            Assert.AreEqual(2, pathList[2].Points[1].x);
+            Assert.AreEqual(3, pathList[2].Points[2].x);
         }
 
         [Test]
@@ -220,7 +335,7 @@ namespace GreenLightTracker.Test
                     new GpsCoordinate(){ x = 3, y = 0.1 },
                 }, 2);
 
-            var splitter = new RoadSplitter(5, null);
+            var splitter = new RoadSplitter(1, null);
             splitter.Process(paths);
 
             var pathList = (List<PathData>)paths;
@@ -257,7 +372,7 @@ namespace GreenLightTracker.Test
                     new GpsCoordinate(){ x = 3, y = 2 },
                 }, 2);
 
-            var splitter = new RoadSplitter(5, null);
+            var splitter = new RoadSplitter(1, null);
             splitter.Process(paths);
 
             var pathList = (List<PathData>)paths;
@@ -293,11 +408,11 @@ namespace GreenLightTracker.Test
             paths.AddRange(PointUtils.CreateFromPoints(
                 new List<GpsCoordinate>()
                 {
-                    new GpsCoordinate(){ x = 0, y = 0.1 },
+                    new GpsCoordinate(){ x = 0, y = 0.5 },
                     new GpsCoordinate(){ x = 1, y = 2 },
-                    new GpsCoordinate(){ x = 2, y = -0.1 },
+                    new GpsCoordinate(){ x = 2, y = -0.5 },
                     new GpsCoordinate(){ x = 3, y = -2 },
-                    new GpsCoordinate(){ x = 4, y = 0.1 },
+                    new GpsCoordinate(){ x = 4, y = 0.5 },
                 }, 3));
 
             var splitter = new RoadSplitter(1, null);
@@ -305,25 +420,21 @@ namespace GreenLightTracker.Test
 
             var pathList = (List<PathData>)paths;
 
-            Assert.AreEqual(4, pathList.Count);
+            Assert.AreEqual(2, pathList.Count);
 
-            Assert.AreEqual(3, pathList[0].Points.Count);
+            Assert.AreEqual(5, pathList[0].Points.Count);
             Assert.AreEqual(0, pathList[0].Points[0].x);
             Assert.AreEqual(1, pathList[0].Points[1].x);
             Assert.AreEqual(2, pathList[0].Points[2].x);
+            Assert.AreEqual(3, pathList[0].Points[3].x);
+            Assert.AreEqual(4, pathList[0].Points[4].x);
 
-            Assert.AreEqual(3, pathList[1].Points.Count);
-            Assert.AreEqual(0.1, pathList[1].Points[0].y);
+            Assert.AreEqual(5, pathList[1].Points.Count);
+            Assert.AreEqual(0.5, pathList[1].Points[0].y);
             Assert.AreEqual(2, pathList[1].Points[1].y);
-            Assert.AreEqual(-0.1, pathList[1].Points[2].y);
-
-            Assert.AreEqual(2, pathList[2].Points.Count);
-            Assert.AreEqual(3, pathList[2].Points[0].x);
-            Assert.AreEqual(4, pathList[2].Points[1].x);
-
-            Assert.AreEqual(2, pathList[3].Points.Count);
-            Assert.AreEqual(-2, pathList[3].Points[0].y);
-            Assert.AreEqual(0.1, pathList[3].Points[1].y);
+            Assert.AreEqual(-0.5, pathList[1].Points[2].y);
+            Assert.AreEqual(-2, pathList[1].Points[3].y);
+            Assert.AreEqual(0.5, pathList[1].Points[4].y);
         }
 
         [Test]
@@ -357,46 +468,6 @@ namespace GreenLightTracker.Test
             Assert.AreEqual(-1, pathList[1].Points[0].y);
             Assert.AreEqual(0, pathList[1].Points[1].y);
             Assert.AreEqual(1, pathList[1].Points[2].y);
-        }
-
-        [Test]
-        public void RoadSplitterCrossHasConnectionTest1()
-        {
-            var paths = PointUtils.CreateFromPoints(
-                new List<GpsCoordinate>()
-                {
-                    new GpsCoordinate(){ x = -1 },
-                    new GpsCoordinate(){ x = 0 },
-                    new GpsCoordinate(){ x = 1 },
-
-                    new GpsCoordinate(){ y = -1 },
-                    new GpsCoordinate(){ y = 0 },
-                    new GpsCoordinate(){ y = 1 },
-                }, 1);
-
-            var connections = new PathConnections();
-            connections.Add(1, 0);
-
-            var splitter = new RoadSplitter(0.5f, connections);
-            splitter.Process(paths);
-
-            var pathList = (List<PathData>)paths;
-
-            Assert.AreEqual(4, pathList.Count);
-
-            Assert.AreEqual(2, pathList[0].Points.Count);
-            Assert.AreEqual(-1, pathList[0].Points[0].x);
-            Assert.AreEqual(0, pathList[0].Points[1].x);
-
-            Assert.AreEqual(2, pathList[1].Points.Count);
-            Assert.AreEqual(-1, pathList[1].Points[0].y);
-            Assert.AreEqual(0, pathList[1].Points[1].y);
-
-            Assert.AreEqual(1, pathList[2].Points.Count);
-            Assert.AreEqual(1, pathList[2].Points[0].x);
-
-            Assert.AreEqual(1, pathList[3].Points.Count);
-            Assert.AreEqual(1, pathList[3].Points[0].y);
         }
     }
 }

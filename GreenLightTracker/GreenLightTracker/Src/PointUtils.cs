@@ -312,6 +312,8 @@ namespace GreenLightTracker.Src
 
         public static PathData SplitPathDataAtIndex(PathData pathData, int index)
         {
+            ++index; // take next point to tail so we don't process the same multiple times
+
             if (pathData == null || index < 0 || index >= pathData.Points.Count)
                 return null;
 

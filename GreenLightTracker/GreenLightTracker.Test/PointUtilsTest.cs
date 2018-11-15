@@ -335,9 +335,8 @@ namespace GreenLightTracker.Test
 
             var tail = PointUtils.SplitPathDataAtIndex(pathsData[0], 2);
 
-            Assert.AreEqual(2, tail.Points.Count);
-            Assert.AreEqual(2, tail.Points[0].x);
-            Assert.AreEqual(3, tail.Points[1].x);
+            Assert.AreEqual(1, tail.Points.Count);
+            Assert.AreEqual(3, tail.Points[0].x);
         }
 
         [Test]

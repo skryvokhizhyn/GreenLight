@@ -30,23 +30,64 @@ namespace GreenLightTracker.Test
         {
             var pathConnection = new PathConnections();
 
-            pathConnection.Split(0, 0, 0);
+            pathConnection.Split(0, 0, 0, true);
             Assert.IsTrue(pathConnection.IsEmpty());
         }
 
         [Test]
-        public void PathConnectionSplitBasicTest1()
+        public void PathConnectionSplitBasicInTest1()
         {
             var pathConnection = new PathConnections();
-            pathConnection.Add(2, 1);
-            pathConnection.Add(3, 1);
-            pathConnection.Add(1, 4);
+            pathConnection.Add(1, 2);
 
-            pathConnection.Split(1, 5, 2);
-            Assert.IsTrue(pathConnection.HasConnection(2, 5));
-            Assert.IsTrue(pathConnection.HasConnection(3, 5));
+            pathConnection.Split(1, 4, 3, true);
+            Assert.IsTrue(pathConnection.HasConnection(1, 4));
+            Assert.IsTrue(pathConnection.HasConnection(3, 4));
+            Assert.IsTrue(pathConnection.HasConnection(4, 2));
+        }
+
+        [Test]
+        public void PathConnectionSplitBasicInTest2()
+        {
+            var pathConnection = new PathConnections();
+            pathConnection.Add(1, 3);
+            pathConnection.Add(2, 3);
+            pathConnection.Add(3, 4);
+
+            pathConnection.Split(1, 6, 5, true);
+            Assert.IsTrue(pathConnection.HasConnection(1, 6));
+            Assert.IsTrue(pathConnection.HasConnection(5, 6));
+            Assert.IsTrue(pathConnection.HasConnection(6, 3));
+            Assert.IsTrue(pathConnection.HasConnection(2, 3));
+            Assert.IsTrue(pathConnection.HasConnection(3, 4));
+        }
+
+        [Test]
+        public void PathConnectionSplitBasicOutTest1()
+        {
+            var pathConnection = new PathConnections();
+            pathConnection.Add(1, 2);
+
+            pathConnection.Split(1, 4, 3, false);
+            Assert.IsTrue(pathConnection.HasConnection(1, 4));
+            Assert.IsTrue(pathConnection.HasConnection(1, 3));
+            Assert.IsTrue(pathConnection.HasConnection(4, 2));
+        }
+
+        [Test]
+        public void PathConnectionSplitBasicOutTest2()
+        {
+            var pathConnection = new PathConnections();
+            pathConnection.Add(1, 3);
+            pathConnection.Add(2, 3);
+            pathConnection.Add(3, 4);
+
+            pathConnection.Split(1, 6, 5, false);
             Assert.IsTrue(pathConnection.HasConnection(1, 5));
-            Assert.IsTrue(pathConnection.HasConnection(5, 4));
+            Assert.IsTrue(pathConnection.HasConnection(1, 6));
+            Assert.IsTrue(pathConnection.HasConnection(6, 3));
+            Assert.IsTrue(pathConnection.HasConnection(2, 3));
+            Assert.IsTrue(pathConnection.HasConnection(3, 4));
         }
     }
 }
