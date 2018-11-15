@@ -94,7 +94,7 @@ namespace GreenLightTracker.Src
 
             var shortenedCount = PointUtils.GetPointsCount(pathPoints);
 
-            var roadSplitter = new RoadSplitter(10 /*m*/, pathConnections);
+            var roadSplitter = new RoadSplitter(11 /*m*/, pathConnections);
             roadSplitter.Process(pathPoints);
 
             // Remove after splitting short artifacts
