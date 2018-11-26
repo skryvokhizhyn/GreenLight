@@ -161,7 +161,7 @@ namespace GreenLightTracker.Test
                         new GpsCoordinate(){ x = 48 },
 
 
-                        new GpsCoordinate(){ x = 20 },//3
+                        new GpsCoordinate(){ x = 20 },//2
                         new GpsCoordinate(){ x = 25 },
                         new GpsCoordinate(){ x = 27 },
 
@@ -169,12 +169,13 @@ namespace GreenLightTracker.Test
                         new GpsCoordinate(){ x = 34 },//-
                         new GpsCoordinate(){ x = 36 },//-
 
-                        new GpsCoordinate(){ x = 37 },//4
+                        new GpsCoordinate(){ x = 37 },//3
                         new GpsCoordinate(){ x = 40 },
                         new GpsCoordinate(){ x = 43 },
                         new GpsCoordinate(){ x = 47 },//-
                         new GpsCoordinate(){ x = 49 },//-
-                        new GpsCoordinate(){ x = 50 },//5
+                        new GpsCoordinate(){ x = 50 },//4
+                        new GpsCoordinate(){ x = 51 },
                 }, 5);
 
             var filter = new DuplicateRoadFilter(1);
@@ -203,14 +204,18 @@ namespace GreenLightTracker.Test
             Assert.AreEqual(40, pathList[3].Points[1].x);
             Assert.AreEqual(43, pathList[3].Points[2].x);
 
-            Assert.AreEqual(1, pathList[4].Points.Count);
+            Assert.AreEqual(2, pathList[4].Points.Count);
             Assert.AreEqual(50, pathList[4].Points[0].x);
+            Assert.AreEqual(51, pathList[4].Points[1].x);
 
-            Assert.IsFalse(connections.IsEmpty());
-            Assert.IsTrue(connections.HasConnection(3, 0));
-            Assert.IsTrue(connections.HasConnection(0, 4));
-            Assert.IsTrue(connections.HasConnection(4, 1));
-            Assert.IsTrue(connections.HasConnection(1, 5));
+            var connectionsChecker = new PathConnectionsChecksTracker(connections);
+
+            Assert.IsFalse(connectionsChecker.IsEmpty());
+            Assert.IsTrue(connectionsChecker.HasConnection(2, 0));
+            Assert.IsTrue(connectionsChecker.HasConnection(0, 3));
+            Assert.IsTrue(connectionsChecker.HasConnection(3, 1));
+            Assert.IsTrue(connectionsChecker.HasConnection(1, 4));
+            Assert.IsTrue(connectionsChecker.AllConnectionsChecked());
         }
 
         [Test]

@@ -24,6 +24,27 @@ namespace GreenLightTracker.Src
             }
         }
 
+        public bool Remove(int pathIdFrom, int pathIdTo)
+        {
+            HashSet<int> mappedIds;
+            if (!m_pathToPathConnections.TryGetValue(pathIdFrom, out mappedIds))
+            {
+                return false;
+            }
+
+            if (!mappedIds.Remove(pathIdTo))
+            {
+                return false;
+            }
+
+            if (mappedIds.Count == 0)
+            {
+                m_pathToPathConnections.Remove(pathIdFrom);
+            }
+
+            return true;
+        }
+
         public bool HasConnection(int pathIdFrom, int pathIdTo)
         {
             HashSet<int> mappedIds;
@@ -78,6 +99,16 @@ namespace GreenLightTracker.Src
                     pathToConnections.Value.Remove(toSplitPathId);
                     pathToConnections.Value.Add(generatedPathId);
                 }
+            }
+        }
+
+        public void RemovePathId(int pathId)
+        {
+            m_pathToPathConnections.Remove(pathId);
+
+            foreach (var keyToValue in m_pathToPathConnections)
+            {
+                keyToValue.Value.Remove(pathId);
             }
         }
     }

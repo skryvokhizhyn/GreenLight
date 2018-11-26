@@ -135,7 +135,7 @@ namespace GreenLightTracker.Src
             ScalePoints(m_allPoints, XMin, YMin, XMax, YMax);
         }
 
-        public void AppendCoredPoints(ICollection<GpsCoordinate> points)
+        public void AppendColoredPoints(ICollection<GpsCoordinate> points)
         {
             if (points == null)
                 return;
@@ -181,14 +181,14 @@ namespace GreenLightTracker.Src
                 {
                     var colorIndex = i++ % m_colorsForPoints.Length;
                     canvas.DrawPoints(points, 0, points.Length, new Paint { Color = m_colorsForPoints[colorIndex] });
-                    canvas.DrawCircle(points[0], points[1], 4.0f, new Paint { Color = m_colorsForPoints[colorIndex] });
+                    //canvas.DrawCircle(points[0], points[1], 4.0f, new Paint { Color = m_colorsForPoints[colorIndex] });
                     canvas.DrawCircle(points[points.Length - 2], points[points.Length - 1], 4.0f, new Paint { Color = m_colorsForPoints[colorIndex] });
                 }
             }
 
             if (m_carPosition != null)
             {
-                canvas.DrawCircle(m_carPosition[0], m_carPosition[1], 4.0f, new Paint { Color = Color.GreenYellow });
+                //canvas.DrawCircle(m_carPosition[0], m_carPosition[1], 4.0f, new Paint { Color = Color.GreenYellow });
             }
         }
 

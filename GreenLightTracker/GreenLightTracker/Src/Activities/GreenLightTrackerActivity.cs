@@ -227,7 +227,7 @@ namespace GreenLightTracker.Src.Activities
                 FindViewById<TextView>(Resource.Id.row_road_id).SetBackgroundColor(new Color(Color.Magenta));
 
                 var pathPoints = m_roadTracker.GetPathById(pathId);
-                m_pathView.AppendCoredPoints(pathPoints);
+                m_pathView.AppendColoredPoints(pathPoints);
             }
 
             m_pathView.Invalidate();

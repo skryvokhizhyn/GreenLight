@@ -216,10 +216,12 @@ namespace GreenLightTracker.Src
                 }
             }
 
-            if (res.Count > 0 && res.Last().Count == 0)
+            foreach (var path in res)
             {
-                res.RemoveAt(res.Count - 1);
+                path.RemoveAll(p => p == null);
             }
+
+            res.RemoveAll(p => p == null || p.Count == 0);
 
             return res;
         }
@@ -294,20 +296,38 @@ namespace GreenLightTracker.Src
             return length;
         }
 
-        public static void RemoveShortPaths(ICollection<PathData> paths, float tolerance = 10)
+        public static void RemoveShortPaths(ICollection<PathData> paths, float tolerance, PathConnections connections)
         {
             if (paths == null)
                 return;
 
-            ((List<PathData>)paths).RemoveAll(path => PointUtils.GetDistance(path.Points) < tolerance);
+            ((List<PathData>)paths).RemoveAll(delegate (PathData path) 
+            {
+                if (PointUtils.GetDistance(path.Points) < tolerance)
+                {
+                    connections?.RemovePathId(path.Id);
+                    return true;
+                }
+                
+                return false;
+            });
         }
 
-        public static void RemoveLongPaths(ICollection<PathData> paths, float tolerance = 10)
+        public static void RemoveLongPaths(ICollection<PathData> paths, float tolerance, PathConnections connections)
         {
             if (paths == null)
                 return;
 
-            ((List<PathData>)paths).RemoveAll(path => PointUtils.GetDistance(path.Points) >= tolerance);
+            ((List<PathData>)paths).RemoveAll(delegate (PathData path)
+            {
+                if (PointUtils.GetDistance(path.Points) >= tolerance)
+                {
+                    connections?.RemovePathId(path.Id);
+                    return true;
+                }
+
+                return false;
+            });
         }
 
         public static PathData SplitPathDataAtIndex(PathData pathData, int index)

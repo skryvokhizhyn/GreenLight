@@ -66,15 +66,19 @@ namespace GreenLightTracker.Src
                     ++pointIndex;
                 }
 
+                pathsList[pathIndex] = null;
+
                 var splitPoints = PointUtils.SplitPoints(pathData.Points);
 
-                if (splitPoints.Count > 1)
+                if (splitPoints.Count > 0)
                 {
                     var newPathsList = new List<PathData>();
 
+                    var index = 0;
                     foreach (var points in splitPoints)
                     {
-                        var newPath = new PathData();
+                        // Keep id for first path data so it's easier to track it
+                        PathData newPath = new PathData((index++ == 0) ? pathData.Id : new int?());
                         newPath.Points = points;
 
                         FillConnections(pointToNeighborPathId, newPath, pathConnections);
@@ -82,35 +86,11 @@ namespace GreenLightTracker.Src
                         newPathsList.Add(newPath);
                     }
 
-                    pathsList[pathIndex] = null;
-
                     foreach (var path in newPathsList)
                     {
                         mapper.PutPoints(PathPoint.CreateFromPathData(path));
                         newPathsListTotal.Add(path);
                     }
-                }
-                else if (splitPoints.Count == 1)
-                {
-                    if (splitPoints[0].Count == 0)
-                    {
-                        pathsList[pathIndex] = null;
-                    }
-                    else
-                    {
-                        pathData.Points.RemoveAll(p => p == null);
-
-                        if (pathData.Points.Count > 0)
-                        {
-                            FillConnections(pointToNeighborPathId, pathData, pathConnections);
-                        }
-
-                        mapper.PutPoints(PathPoint.CreateFromPathData(pathData));
-                    }
-                }
-                else
-                {
-                    pathsList[pathIndex] = null;
                 }
 
                 ++pathIndex;

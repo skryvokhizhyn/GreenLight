@@ -5,6 +5,8 @@ using System.Collections.Generic;
 
 namespace GreenLightTracker.Src
 {
+    using PathInformation = System.Tuple<ICollection<PathData>, PathConnections>;
+
     class ActivityCallbackUtils
     {
         public static void ProcessTrackButtonClick(
@@ -12,7 +14,7 @@ namespace GreenLightTracker.Src
         {
             if (!roadTracker.IsInitialized())
             {
-                var pathPoints = GetPathData(queryManager);
+                var pathPoints = GetPathData(queryManager).Item1;
 
                 var pathMapper = new PathMapper(10);
                 pathMapper.PutPointList(pathPoints);
@@ -31,9 +33,13 @@ namespace GreenLightTracker.Src
             locationManager.Start();
         }
 
+        static int a = 0;
+
         public static void ProcessDrawButtonClick(DBQueryManager queryManager, PathView pathView)
         {
-            var pathPoints = GetPathData(queryManager);
+            var pathInformation = GetPathData(queryManager);
+            var pathPoints = pathInformation.Item1;
+            var pathConnections = pathInformation.Item2;
 
             var xyMinMax = PointUtils.GetXYMinMax(pathPoints);
 
@@ -45,11 +51,38 @@ namespace GreenLightTracker.Src
             //var gpsCoordinates = PointUtils.PathDataToGpsCoordinates(pathPoints);
             //pathView.SetPoints(gpsCoordinates);
 
+            int i = 0;
+
+            PathData currentPathData = null;
+            foreach (var p in pathPoints)
+            {
+                if (i == a)
+                    currentPathData = p;
+
+                ++i;
+            }
+
+            int j = 0;
+
             pathView.ResetColoredPoints();
             foreach (var p in pathPoints)
             {
-                pathView.AppendCoredPoints(p.Points);
+                if (pathConnections.HasConnection(currentPathData.Id, p.Id))
+                {
+                    //pathView.AppendColoredPoints(p.Points);
+                }
+                //36 75
+                //if (j == a)
+                if (p.Id == 75)
+                {
+                    pathView.AppendColoredPoints(p.Points);
+                    var d = PointUtils.GetDistance(p.Points);
+                }
+
+                ++j;
             }
+
+            ++a;
 
             pathView.Invalidate();
         }
@@ -69,14 +102,14 @@ namespace GreenLightTracker.Src
             builder.Create().Show();
         }
 
-        private static ICollection<PathData> GetPathData(DBQueryManager queryManager)
+        private static PathInformation GetPathData(DBQueryManager queryManager)
         {
             var locations = queryManager.GetAllGpsLocations();
             var pathPoints = GpsUtils.GetPathPointsFromLocations(locations, 3000 /*ms*/);
 
             var initialCount = PointUtils.GetPointsCount(pathPoints);
 
-            PointUtils.RemoveShortPaths(pathPoints, 1000 /*m*/);
+            PointUtils.RemoveShortPaths(pathPoints, 1000 /*m*/, null);
 
             var afterFirstRemovalOfShortPaths = PointUtils.GetPointsCount(pathPoints);
 
@@ -90,7 +123,7 @@ namespace GreenLightTracker.Src
 
             var deduplicatedCount = PointUtils.GetPointsCount(pathPoints);
 
-            PointUtils.RemoveShortPaths(pathPoints, 1000 /*m*/);
+            PointUtils.RemoveShortPaths(pathPoints, 1000 /*m*/, pathConnections);
 
             var shortenedCount = PointUtils.GetPointsCount(pathPoints);
 
@@ -98,9 +131,9 @@ namespace GreenLightTracker.Src
             roadSplitter.Process(pathPoints);
 
             // Remove after splitting short artifacts
-            //PointUtils.RemoveShortPaths(pathPoints, 4 /*m*/);
+            PointUtils.RemoveShortPaths(pathPoints, 4 /*m*/, pathConnections);
 
-            return pathPoints;
+            return new PathInformation(pathPoints, pathConnections);
         }
     }
 }

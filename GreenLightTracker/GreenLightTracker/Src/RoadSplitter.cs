@@ -45,6 +45,9 @@ namespace GreenLightTracker.Src
                         if (neighbor.PathId == path.Id)
                             continue;
 
+                        if (m_connections != null && !m_connections.HasConnection(neighbor.PathId, path.Id))
+                            continue;
+
                         var inOutVal = SafeGetValue(pointToPath, neighbor.Point);
                         inOutVal.outPaths.Add(path.Id);
                     }
@@ -59,6 +62,9 @@ namespace GreenLightTracker.Src
                         if (neighbor.PathId == path.Id)
                             continue;
 
+                        if (m_connections != null && !m_connections.HasConnection(path.Id, neighbor.PathId))
+                            continue;
+
                         var inOutVal = SafeGetValue(pointToPath, neighbor.Point);
                         inOutVal.inPaths.Add(path.Id);
                     }
@@ -70,6 +76,11 @@ namespace GreenLightTracker.Src
                 var path = paths.ElementAt(pathIndex);
                 var points = path.Points;
 
+                if (pathIndex == 0)
+                {
+                    var a = 0;
+                }
+
                 for (var pointIndex = 1; pointIndex < points.Count - 1; ++pointIndex)
                 {
                     InOutPaths inOutPaths;
@@ -80,12 +91,17 @@ namespace GreenLightTracker.Src
                         if (tail == null)
                             continue;
 
+                        if (tail.Id == 75)
+                        {
+                            var a = 0;
+                        }
+
                         {
                             bool firstProcessed = false;
 
                             foreach (var inPathId in inOutPaths.inPaths)
                             {
-                                if (firstProcessed)
+                                if (!firstProcessed)
                                     m_connections?.Split(path.Id, tail.Id, inPathId, true);
                                 else
                                     m_connections?.Add(inPathId, tail.Id);
@@ -99,7 +115,7 @@ namespace GreenLightTracker.Src
 
                             foreach (var outPathId in inOutPaths.outPaths)
                             {
-                                if (firstProcessed)
+                                if (!firstProcessed)
                                     m_connections?.Split(path.Id, tail.Id, outPathId, false);
                                 else
                                     m_connections?.Add(path.Id, outPathId);

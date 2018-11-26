@@ -7,14 +7,9 @@ namespace GreenLightTracker.Src
         public int Id { get; private set; }
         public List<GpsCoordinate> Points { get; set; } = new List<GpsCoordinate>();
 
-        public PathData()
+        public PathData(int? id = null)
         {
-            Id = PathId.Generate();
-        }
-
-        public PathData(int id)
-        {
-            Id = id;
+            Id = (id == null) ? PathId.Generate() : id.Value;
         }
     }
 }
