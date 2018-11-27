@@ -22,15 +22,17 @@ namespace GreenLightTracker.Test
 
         public bool AllConnectionsChecked()
         {
+            var tempConnections = m_connections.Clone();
+
             foreach (var keyToValue in m_checkedConnections)
             {
                 foreach (var toValue in keyToValue.Value)
                 {
-                    m_connections.Remove(keyToValue.Key, toValue);
+                    tempConnections.Remove(keyToValue.Key, toValue);
                 }
             }
 
-            return m_connections.IsEmpty();
+            return tempConnections.IsEmpty();
         }
 
         public bool IsEmpty()

@@ -6,6 +6,11 @@ namespace GreenLightTracker.Src
     {
         private Dictionary<int, HashSet<int>> m_pathToPathConnections;
 
+        private PathConnections(Dictionary<int, HashSet<int>> internalDictionary)
+        {
+            m_pathToPathConnections = internalDictionary;
+        }
+
         public PathConnections()
         {
             m_pathToPathConnections = new Dictionary<int, HashSet<int>>();
@@ -92,14 +97,14 @@ namespace GreenLightTracker.Src
             }
 
             // Replace links to original path with newly generated one
-            foreach (var pathToConnections in m_pathToPathConnections)
-            {
-                if (pathToConnections.Value.Contains(toSplitPathId))
-                {
-                    pathToConnections.Value.Remove(toSplitPathId);
-                    pathToConnections.Value.Add(generatedPathId);
-                }
-            }
+            //foreach (var pathToConnections in m_pathToPathConnections)
+            //{
+            //    if (pathToConnections.Value.Contains(toSplitPathId))
+            //    {
+            //        pathToConnections.Value.Remove(toSplitPathId);
+            //        pathToConnections.Value.Add(generatedPathId);
+            //    }
+            //}
         }
 
         public void RemovePathId(int pathId)
@@ -110,6 +115,18 @@ namespace GreenLightTracker.Src
             {
                 keyToValue.Value.Remove(pathId);
             }
+        }
+
+        public PathConnections Clone()
+        {
+            var clone = new Dictionary<int, HashSet<int>>();
+
+            foreach (var keyToVal in m_pathToPathConnections)
+            {
+                clone.Add(keyToVal.Key, new HashSet<int>(keyToVal.Value));
+            }
+
+            return new PathConnections(clone);
         }
     }
 }

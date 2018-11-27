@@ -124,5 +124,42 @@ namespace GreenLightTracker.Test
             Assert.IsFalse(pathConnection.HasConnection(3, 1));
             Assert.IsTrue(pathConnection.HasConnection(3, 4));
         }
+
+        [Test]
+        public void PathConnectionComplexTest1()
+        {
+            var pathConnection = new PathConnections();
+
+            pathConnection.Add(0, 4);
+
+            var pathConnectionTracker = new PathConnectionsChecksTracker(pathConnection);
+
+            pathConnection.Split(0, 5, 1, true);
+
+            Assert.IsTrue(pathConnectionTracker.HasConnection(0, 5));
+            Assert.IsTrue(pathConnectionTracker.HasConnection(1, 5));
+            Assert.IsTrue(pathConnectionTracker.HasConnection(5, 4));
+            Assert.IsTrue(pathConnectionTracker.AllConnectionsChecked());
+
+            pathConnection.Split(5, 6, 2, false);
+
+            Assert.IsTrue(pathConnectionTracker.HasConnection(0, 5));
+            Assert.IsTrue(pathConnectionTracker.HasConnection(1, 5));
+            Assert.IsTrue(pathConnectionTracker.HasConnection(5, 6));
+            Assert.IsTrue(pathConnectionTracker.HasConnection(5, 2));
+            Assert.IsTrue(pathConnectionTracker.HasConnection(6, 4));
+            Assert.IsTrue(pathConnectionTracker.AllConnectionsChecked());
+
+            pathConnection.Split(6, 7, 3, true);
+
+            Assert.IsTrue(pathConnectionTracker.HasConnection(0, 5));
+            Assert.IsTrue(pathConnectionTracker.HasConnection(1, 5));
+            Assert.IsTrue(pathConnectionTracker.HasConnection(5, 6));
+            Assert.IsTrue(pathConnectionTracker.HasConnection(5, 2));
+            Assert.IsTrue(pathConnectionTracker.HasConnection(6, 7));
+            Assert.IsTrue(pathConnectionTracker.HasConnection(3, 7));
+            Assert.IsTrue(pathConnectionTracker.HasConnection(7, 4));
+            Assert.IsTrue(pathConnectionTracker.AllConnectionsChecked());
+        }
     }
 }
