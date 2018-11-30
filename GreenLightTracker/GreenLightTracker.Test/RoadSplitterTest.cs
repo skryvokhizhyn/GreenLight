@@ -469,5 +469,62 @@ namespace GreenLightTracker.Test
             Assert.AreEqual(0, pathList[1].Points[1].y);
             Assert.AreEqual(1, pathList[1].Points[2].y);
         }
+
+        [Test]
+        public void RoadSplitterComplexConnectionTest1()
+        {
+            var paths = PointUtils.CreateFromPoints(
+                new List<GpsCoordinate>()
+                {
+                    new GpsCoordinate(){ x = 0 }, // 0
+                    new GpsCoordinate(){ x = 1 },
+                    new GpsCoordinate(){ x = 2 },
+                    new GpsCoordinate(){ x = 3 },
+                    new GpsCoordinate(){ x = 4 },
+                    new GpsCoordinate(){ x = 5 },
+                    new GpsCoordinate(){ x = 6 },
+
+                    new GpsCoordinate(){ x = 1, y = 2 }, // 1
+                    new GpsCoordinate(){ x = 1, y = 1 },
+                    new GpsCoordinate(){ x = 1, y = 0.1 },
+
+                    new GpsCoordinate(){ x = 3, y = -0.1 }, // 2
+                    new GpsCoordinate(){ x = 3, y = -1 },
+                    new GpsCoordinate(){ x = 3, y = -2 },
+
+                    new GpsCoordinate(){ x = 5, y = 2 }, // 3
+                    new GpsCoordinate(){ x = 5, y = 1 },
+                    new GpsCoordinate(){ x = 5, y = 0.1 },
+
+                    new GpsCoordinate(){ x = 6.1 }, //4
+                    new GpsCoordinate(){ x = 7 },
+
+                    new GpsCoordinate(){ x = -2 }, // 5
+                    new GpsCoordinate(){ x = -1 },
+                    new GpsCoordinate(){ x = -0.1 },
+                }, 1);
+
+            var pathConnections = new PathConnections();
+            pathConnections.Add(0, 4);
+            pathConnections.Add(1, 0);
+            pathConnections.Add(0, 2);
+            pathConnections.Add(3, 0);
+            pathConnections.Add(5, 0);
+
+            var splitter = new RoadSplitter(0.5f, pathConnections);
+            splitter.Process(paths);
+
+            var connectionsTracker = new PathConnectionsChecksTracker(pathConnections);
+
+            Assert.IsTrue(connectionsTracker.HasConnection(5, 0));
+            Assert.IsTrue(connectionsTracker.HasConnection(0, 6));
+            Assert.IsTrue(connectionsTracker.HasConnection(1, 6));
+            Assert.IsTrue(connectionsTracker.HasConnection(6, 7));
+            Assert.IsTrue(connectionsTracker.HasConnection(6, 2));
+            Assert.IsTrue(connectionsTracker.HasConnection(3, 8));
+            Assert.IsTrue(connectionsTracker.HasConnection(7, 8));
+            Assert.IsTrue(connectionsTracker.HasConnection(8, 4));
+            Assert.IsTrue(connectionsTracker.AllConnectionsChecked());
+        }
     }
 }

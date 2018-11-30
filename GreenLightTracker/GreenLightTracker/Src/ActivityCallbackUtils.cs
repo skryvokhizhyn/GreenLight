@@ -69,11 +69,11 @@ namespace GreenLightTracker.Src
             {
                 if (pathConnections.HasConnection(currentPathData.Id, p.Id))
                 {
-                    //pathView.AppendColoredPoints(p.Points);
+                    pathView.AppendColoredPoints(p.Points);
                 }
                 //67
-                //if (j == a)
-                if (p.Id == 67)
+                if (j == a)
+                //if (p.Id == 67)
                 {
                     pathView.AppendColoredPoints(p.Points);
                     var d = PointUtils.GetDistance(p.Points);

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace GreenLightTracker.Src
 {
@@ -66,10 +67,21 @@ namespace GreenLightTracker.Src
             return m_pathToPathConnections.Count == 0;
         }
 
+        public IEnumerable<int> GetConnections(int pathId)
+        {
+            HashSet<int> mappedIds;
+            if (!m_pathToPathConnections.TryGetValue(pathId, out mappedIds))
+            {
+                return new List<int>();
+            }
+
+            return mappedIds.ToList();
+        }
+
         public void Split(int toSplitPathId, int generatedPathId, int causedSplitPathId, bool isInPath)
         {
-            if (!m_pathToPathConnections.ContainsKey(toSplitPathId))
-                return;
+            //if (!m_pathToPathConnections.ContainsKey(toSplitPathId))
+            //    return;
 
             HashSet<int> currentlyMappedIds;
             m_pathToPathConnections.TryGetValue(toSplitPathId, out currentlyMappedIds);
@@ -127,6 +139,11 @@ namespace GreenLightTracker.Src
             }
 
             return new PathConnections(clone);
+        }
+
+        public void Clear()
+        {
+            m_pathToPathConnections.Clear();
         }
     }
 }

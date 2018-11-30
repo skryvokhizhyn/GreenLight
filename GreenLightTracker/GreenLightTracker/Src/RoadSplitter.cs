@@ -33,6 +33,7 @@ namespace GreenLightTracker.Src
             }
 
             var pointToPath = new Dictionary<GpsCoordinate, InOutPaths>();
+            var directConnections = new PathConnections();
 
             foreach (var path in paths)
             {
@@ -48,8 +49,12 @@ namespace GreenLightTracker.Src
                         if (m_connections != null && !m_connections.HasConnection(neighbor.PathId, path.Id))
                             continue;
 
-                        var inOutVal = SafeGetValue(pointToPath, neighbor.Point);
-                        inOutVal.outPaths.Add(path.Id);
+                        // Last point to First point
+                        if (neighbor.Next != null)
+                        {
+                            var inOutVal = SafeGetValue(pointToPath, neighbor.Point);
+                            inOutVal.outPaths.Add(path.Id);
+                        }
                     }
                 }
 
@@ -65,20 +70,34 @@ namespace GreenLightTracker.Src
                         if (m_connections != null && !m_connections.HasConnection(path.Id, neighbor.PathId))
                             continue;
 
-                        var inOutVal = SafeGetValue(pointToPath, neighbor.Point);
-                        inOutVal.inPaths.Add(path.Id);
+                        if (neighbor.Prev == null)
+                        {
+                            directConnections.Add(path.Id, neighbor.PathId);
+                        }
+                        else
+                        {
+                            var inOutVal = SafeGetValue(pointToPath, neighbor.Point);
+                            inOutVal.inPaths.Add(path.Id);
+                        }
                     }
                 }
             }
+
+            m_connections?.Clear();
 
             for (var pathIndex = 0; pathIndex < paths.Count; ++pathIndex)
             {
                 var path = paths.ElementAt(pathIndex);
                 var points = path.Points;
 
-                if (pathIndex == 0)
+                if (m_connections != null)
                 {
-                    var a = 0;
+                    var directPaths = directConnections.GetConnections(path.Id);
+                    foreach (var pathId in directPaths)
+                    {
+                        m_connections.Add(path.Id, pathId);
+                        directConnections.Remove(pathId, path.Id);
+                    }
                 }
 
                 for (var pointIndex = 1; pointIndex < points.Count - 1; ++pointIndex)
@@ -91,42 +110,17 @@ namespace GreenLightTracker.Src
                         if (tail == null)
                             continue;
 
-                        if (tail.Id == 75)
+                        if (m_connections != null)
                         {
-                            var a = 0;
-                        }
-
-                        {
-                            bool firstProcessed = false;
-
-                            foreach (var inPathId in inOutPaths.inPaths)
-                            {
-                                if (!firstProcessed)
-                                    m_connections?.Split(path.Id, tail.Id, inPathId, true);
-                                else
-                                    m_connections?.Add(inPathId, tail.Id);
-
-                                firstProcessed = true;
-                            }
-                        }
-
-                        {
-                            bool firstProcessed = false;
-
-                            foreach (var outPathId in inOutPaths.outPaths)
-                            {
-                                if (!firstProcessed)
-                                    m_connections?.Split(path.Id, tail.Id, outPathId, false);
-                                else
-                                    m_connections?.Add(path.Id, outPathId);
-
-                                firstProcessed = true;
-                            }
+                            PutConnections(path.Id, tail.Id, inOutPaths.inPaths, true);
+                            PutConnections(path.Id, tail.Id, inOutPaths.outPaths, false);
                         }
 
                         paths.Add(tail);
                     }
                 }
+
+                break;
             }
         }
 
@@ -140,6 +134,21 @@ namespace GreenLightTracker.Src
             }
 
             return val;
+        }
+
+        void PutConnections(int pathId, int tailId, HashSet<int> ids, bool isInPaths)
+        {
+            bool firstProcessed = false;
+
+            foreach (var id in ids)
+            {
+                if (!firstProcessed)
+                    m_connections.Split(pathId, tailId, id, isInPaths);
+                else
+                    m_connections.Add(pathId, id);
+
+                firstProcessed = true;
+            }
         }
     }
 }
