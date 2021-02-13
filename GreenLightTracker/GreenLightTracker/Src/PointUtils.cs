@@ -122,73 +122,6 @@ namespace GreenLightTracker.Src
             }
         }
 
-        public static int GetLength(PathPoint pathBegin)
-        {
-            int res = 0;
-            var pathPoint = pathBegin;
-
-            while (pathPoint != null)
-            {
-                ++res;
-                pathPoint = pathPoint.Next;
-            }
-
-            return res;
-        }
-
-        public static PathPoint GetPointOnPath(PathPoint pathBegin, int pos)
-        {
-            if (GetLength(pathBegin) <= pos)
-            {
-                throw new ArgumentOutOfRangeException();
-            }
-
-            var pathPoint = pathBegin;
-
-            while (--pos >= 0)
-            {
-                pathPoint = pathPoint.Next;
-            }
-
-            return pathPoint;
-        }
-
-        public static PathPoint GetLastPoint(PathPoint pathBegin)
-        {
-            if (pathBegin == null)
-                return null;
-
-            var ret = pathBegin;
-
-            while (ret.Next != null)
-            {
-                ret = ret.Next;
-            }
-
-            return ret;
-        }
-
-        public static List<PathData> CreateFromPoints(ICollection<GpsCoordinate> points, float tolerance)
-        {
-            var result = new List<PathData>();
-            GpsCoordinate prev = null;
-
-            foreach (var point in points)
-            {
-                if (result.Count == 0
-                    || (prev != null && PointUtils.GetDistance(prev, point) > tolerance))
-                {
-                    result.Add(new PathData());
-                }
-
-                result[result.Count - 1].Points.Add(point);
-
-                prev = point;
-            }
-
-            return result;
-        }
-
         public static List<List<GpsCoordinate>> SplitPoints(IEnumerable<GpsCoordinate> points)
         {
             if (points == null)
@@ -230,7 +163,7 @@ namespace GreenLightTracker.Src
         {
             var points = new List<GpsCoordinate>();
 
-            foreach(var pathData in paths)
+            foreach (var pathData in paths)
             {
                 points.AddRange(pathData.Points);
             }
@@ -245,7 +178,7 @@ namespace GreenLightTracker.Src
 
             var cnt = 0;
 
-            foreach(var path in paths)
+            foreach (var path in paths)
             {
                 cnt += path.Points.Count;
             }
@@ -275,7 +208,7 @@ namespace GreenLightTracker.Src
                 }
             }
 
-            return ( xMin, yMin, xMax, yMax );
+            return (xMin, yMin, xMax, yMax);
         }
 
         public static double GetDistance(IEnumerable<GpsCoordinate> points)
@@ -296,33 +229,15 @@ namespace GreenLightTracker.Src
             return length;
         }
 
-        public static void RemoveShortPaths(ICollection<PathData> paths, float tolerance, PathConnections connections)
-        {
-            if (paths == null)
-                return;
-
-            ((List<PathData>)paths).RemoveAll(delegate (PathData path) 
-            {
-                if (PointUtils.GetDistance(path.Points) < tolerance)
-                {
-                    connections?.RemovePathId(path.Id);
-                    return true;
-                }
-                
-                return false;
-            });
-        }
-
-        public static void RemoveLongPaths(ICollection<PathData> paths, float tolerance, PathConnections connections)
+        public static void RemoveShortPaths(ICollection<PathData> paths, float tolerance)
         {
             if (paths == null)
                 return;
 
             ((List<PathData>)paths).RemoveAll(delegate (PathData path)
             {
-                if (PointUtils.GetDistance(path.Points) >= tolerance)
+                if (PointUtils.GetDistance(path.Points) < tolerance)
                 {
-                    connections?.RemovePathId(path.Id);
                     return true;
                 }
 
@@ -330,20 +245,5 @@ namespace GreenLightTracker.Src
             });
         }
 
-        public static PathData SplitPathDataAtIndex(PathData pathData, int index)
-        {
-            ++index; // take next point to tail so we don't process the same multiple times
-
-            if (pathData == null || index < 0 || index >= pathData.Points.Count)
-                return null;
-
-            var tailPointsCount = pathData.Points.Count - index;
-
-            var tail = new PathData();
-            tail.Points = pathData.Points.GetRange(index, tailPointsCount);
-            pathData.Points.RemoveRange(index, tailPointsCount);
-
-            return tail;
-        }
     }
 }

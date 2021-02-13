@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:gravity="center">
+    android:gravity="center"
+    android:id="@+id/linearLayout1">
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center">
+        android:gravity="center"
+        android:id="@+id/linearLayout1">
         <Button
             android:id="@+id/exit_button"
             android:layout_width="wrap_content"
@@ -23,13 +26,43 @@
             android:text="DB"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:onClick="OnDBPageButtonClick" />
+            android:onClick="OnDBPageButtonClick"
+            android:enabled="false" />
+        <Button
+            android:text="Draw"
+            android:id="@+id/draw_button"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:onClick="OnDrawButtonClick"
+            android:enabled="false" />
+        <RadioGroup
+            android:minWidth="25px"
+            android:minHeight="25px"
+            android:layout_width="115.0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/radioGroup1"
+            android:orientation="horizontal">
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="DB"
+                android:id="@+id/store_db_button"
+                android:onClick="OnStorageDBClick" />
+            <RadioButton
+                android:layout_width="69.5dp"
+                android:layout_height="wrap_content"
+                android:text="AWS"
+                android:id="@+id/store_aws_button"
+                android:onClick="OnStorageAWSClick" />
+        </RadioGroup>
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center">
+        android:gravity="center"
+        android:id="@+id/linearLayout2">
         <Button
             android:id="@+id/stop_button"
             android:layout_width="wrap_content"
@@ -39,34 +72,39 @@
             android:text="Stop"
             android:onClick="OnStopButtonClick" />
         <Button
+            android:text="Reset"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:id="@+id/reset_button"
+            android:onClick="OnResetBufferButtonClick"
+            android:enabled="false" />
+        <Button
             android:id="@+id/collect_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="10dp"
             android:text="Collect"
-            android:onClick="OnCollectButtonClick" />
+            android:onClick="OnCollectButtonClick"
+            android:enabled="false" />
         <Button
             android:text="Track"
             android:id="@+id/track_button"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:onClick="OnTrackButtonClick" />
-        <Button
-            android:text="Draw"
-            android:id="@+id/draw_button"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:onClick="OnDrawButtonClick" />
+            android:onClick="OnTrackButtonClick"
+            android:enabled="false" />
     </LinearLayout>
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="left">
+        android:gravity="left"
+        android:id="@+id/linearLayout3">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Total: " />
+            android:text="Total: "
+            android:id="@+id/textView1" />
         <TextView
             android:id="@+id/row_count_total_text"
             android:background="#ffffff"
@@ -76,7 +114,8 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Filtered: " />
+            android:text="Filtered: "
+            android:id="@+id/textView2" />
         <TextView
             android:id="@+id/row_count_filtered_text"
             android:background="#ffffff"
@@ -86,7 +125,8 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Taken: " />
+            android:text="Taken: "
+            android:id="@+id/textView3" />
         <TextView
             android:id="@+id/row_count_taken_text"
             android:background="#ffffff"
@@ -122,7 +162,8 @@
         android:orientation="horizontal"
         android:gravity="center"
         android:minHeight="50px"
-        android:minWidth="50px">
+        android:minWidth="50px"
+        android:id="@+id/linearLayout4">
         <Button
             android:text="Rst"
             android:layout_width="54.5dp"

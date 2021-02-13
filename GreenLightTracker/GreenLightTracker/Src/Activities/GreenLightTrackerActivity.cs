@@ -6,6 +6,8 @@ using Android.Content.PM;
 using Android.Content;
 using Android.Graphics;
 
+using System;
+
 using NLog;
 
 namespace GreenLightTracker.Src.Activities
@@ -14,15 +16,14 @@ namespace GreenLightTracker.Src.Activities
     public class GreenLightTrackerActivity : Activity
     {
         GpsLocationManager m_locationManager;
-        DBQueryManager m_queryManager = new DBQueryManager();
+        GpsLocationBuffer m_locationBuffer = new GpsLocationBuffer();
         PermissionsManager m_permissionsManager = null;
         EventsConnectionManager m_eventConnectionManager = null;
         int m_rowsCount = 0;
         PathView m_pathView = null;
-        RoadTracker m_roadTracker = new RoadTracker();
-        RoadInformation m_roadInformation = new RoadInformation();
         WakeLockWrapper m_wakeLock = null;
-
+        StorageInterface m_storage = null;
+ 
         private static Logger m_logger = LogManager.GetCurrentClassLogger();
 
         protected override void OnCreate(Bundle savedInstanceState)
@@ -36,7 +37,7 @@ namespace GreenLightTracker.Src.Activities
 
             m_locationManager = new GpsLocationManager(this);
 
-            m_eventConnectionManager = new EventsConnectionManager(m_locationManager, m_queryManager, m_roadTracker, m_roadInformation, this);
+            m_eventConnectionManager = new EventsConnectionManager(m_locationManager, m_locationBuffer, this);
 
             m_pathView = FindViewById<PathView>(Resource.Id.path_view);
 
@@ -46,7 +47,7 @@ namespace GreenLightTracker.Src.Activities
         protected override void OnDestroy()
         {
             m_locationManager.Stop();
-            m_queryManager.Close();
+            m_storage.Close();
 
             base.OnDestroy();
         }
@@ -80,12 +81,19 @@ namespace GreenLightTracker.Src.Activities
         {
             m_eventConnectionManager.ConnectForCollection();
 
+            m_locationBuffer.Session = Guid.NewGuid();
+            m_locationBuffer.Storage = m_storage;
+
             m_locationManager.Start();
 
             FindViewById<Button>(Resource.Id.collect_button).Enabled = false;
             FindViewById<Button>(Resource.Id.stop_button).Enabled = true;
+            FindViewById<Button>(Resource.Id.reset_button).Enabled = true;
 
             m_wakeLock.Acquire();
+
+            FindViewById<RadioButton>(Resource.Id.store_aws_button).Enabled = false;
+            FindViewById<RadioButton>(Resource.Id.store_db_button).Enabled = false;
         }
 
         [Java.Interop.Export()]
@@ -95,17 +103,23 @@ namespace GreenLightTracker.Src.Activities
 
             m_eventConnectionManager.Disconnect();
 
+            m_locationBuffer.Flush();
+
             FindViewById<Button>(Resource.Id.stop_button).Enabled = false;
             FindViewById<Button>(Resource.Id.collect_button).Enabled = true;
             FindViewById<Button>(Resource.Id.track_button).Enabled = true;
+            FindViewById<Button>(Resource.Id.reset_button).Enabled = false;
 
             m_wakeLock.Release();
+
+            FindViewById<RadioButton>(Resource.Id.store_aws_button).Enabled = true;
+            FindViewById<RadioButton>(Resource.Id.store_db_button).Enabled = true;
         }
 
         [Java.Interop.Export()]
         public void OnDrawButtonClick(View v)
         {
-            ActivityCallbackUtils.ProcessDrawButtonClick(m_queryManager, m_pathView);
+            ActivityCallbackUtils.ProcessDrawButtonClick(m_storage, m_pathView);
 
             FindViewById<Button>(Resource.Id.move_reset).Enabled = true;
             FindViewById<Button>(Resource.Id.move_down).Enabled = true;
@@ -119,12 +133,18 @@ namespace GreenLightTracker.Src.Activities
         [Java.Interop.Export()]
         public void OnTrackButtonClick(View v)
         {
-            ActivityCallbackUtils.ProcessTrackButtonClick(m_roadTracker, m_queryManager, m_eventConnectionManager, m_locationManager, m_pathView);
-
+            ActivityCallbackUtils.ProcessTrackButtonClick(m_storage, m_eventConnectionManager, m_locationManager, m_pathView);
+             
             FindViewById<Button>(Resource.Id.track_button).Enabled = false;
             FindViewById<Button>(Resource.Id.stop_button).Enabled = true;
 
             m_wakeLock.Acquire();
+        }
+
+        [Java.Interop.Export()]
+        public void OnResetBufferButtonClick(View v)
+        {
+            m_locationBuffer.Clear();
         }
 
         [Java.Interop.Export()]
@@ -172,6 +192,19 @@ namespace GreenLightTracker.Src.Activities
             m_pathView.MoveDown();
         }
 
+        [Java.Interop.Export()]
+        public void OnStorageDBClick(View v)
+        {
+            m_storage?.Close();
+            m_storage = new StorageLocalDB();
+        }
+        [Java.Interop.Export()]
+        public void OnStorageAWSClick(View v)
+        {
+            m_storage?.Close();
+            m_storage = new StorageAWS();
+        }
+
         #endregion
 
         private void ShowTerminateWindow(string text)
@@ -191,8 +224,20 @@ namespace GreenLightTracker.Src.Activities
 
             if (result != null)
                 ShowTerminateWindow("Failed to request permissions: " + result.ToString());
+
+            if (FindViewById<RadioButton>(Resource.Id.store_db_button).Checked)
+            {
+                OnStorageDBClick(null);
+            }
             else
-                m_queryManager.Open();
+            {
+                OnStorageAWSClick(null);
+            }
+
+            FindViewById<Button>(Resource.Id.db_page_button).Enabled = true;
+            FindViewById<Button>(Resource.Id.collect_button).Enabled = true;
+            FindViewById<Button>(Resource.Id.track_button).Enabled = true;
+            FindViewById<Button>(Resource.Id.draw_button).Enabled = true;
         }
 
         private void UpdateTakenRowCount()
@@ -214,23 +259,6 @@ namespace GreenLightTracker.Src.Activities
 
         public void OnRoadFound(int pathId)
         {
-            if (pathId == RoadInformation.InvalidRoadId)
-            {
-                FindViewById<TextView>(Resource.Id.row_road_id).Text = "N/A";
-                FindViewById<TextView>(Resource.Id.row_road_id).SetBackgroundColor(new Color(Color.White));
-
-                m_pathView.SetPoints(null);
-            }
-            else
-            {
-                FindViewById<TextView>(Resource.Id.row_road_id).Text = pathId.ToString();
-                FindViewById<TextView>(Resource.Id.row_road_id).SetBackgroundColor(new Color(Color.Magenta));
-
-                var pathPoints = m_roadTracker.GetPathById(pathId);
-                m_pathView.AppendColoredPoints(pathPoints);
-            }
-
-            m_pathView.Invalidate();
         }
 
         public void OnNeighborsUpdated(int count)

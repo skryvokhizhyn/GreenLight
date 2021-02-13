@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Data;
-using System.Collections.Generic;
 
 using Mono.Data.Sqlite;
 
@@ -9,34 +9,81 @@ using NLog;
 
 namespace GreenLightTracker.Src
 {
-    class DBQueryManager
+    class StorageLocalDB : StorageInterface
     {
-        SqliteConnection m_connection;
-        bool m_dbAlreadyInitialized = false;
-
         private static Logger m_logger = LogManager.GetCurrentClassLogger();
 
-        public string PathToDB { get; private set; }
+        private SqliteConnection m_connection;
+        private bool m_dbAlreadyInitialized = false;
+        private string m_pathToDB;
 
-        public void Open()
+        public StorageLocalDB()
+        {
+            Open();
+        }
+
+        public void Store(Guid uuid, ICollection<GpsLocation> path)
+        {
+            foreach (var l in path)
+            {
+                string sql = string.Format("Insert Into GpsLocation "
+                    + "(timestamp, longitude, latitude, altitude, speed, ride_id) "
+                    + "values ({0}, {1}, {2}, {3}, {4}, '{5}')", l.Timestamp, l.Longitude, l.Latitude, l.Altitude, l.Speed, uuid.ToString());
+
+                GetQuery().ExecuteCommand(sql);
+            }
+        }
+
+        public long GetGpsLocationCount()
+        {
+            string cmd = "SELECT count(gpsLocationId) FROM GpsLocation";
+            return GetQuery().ExecuteScalar<long>(cmd);
+        }
+
+        public ICollection<GpsLocation> GetAllGpsLocations()
+        {
+            string cmd = "SELECT longitude, latitude, altitude, speed, timestamp "
+                + "FROM GpsLocation";
+
+            var locations = new LinkedList<GpsLocation>();
+
+            using (IDataReader reader = GetQuery().ExecuteQuery(cmd))
+            {
+                while (reader.Read())
+                {
+                    locations.AddLast(new GpsLocation
+                    {
+                        Longitude = reader.GetDouble(0),
+                        Latitude = reader.GetDouble(1),
+                        Altitude = reader.GetDouble(2),
+                        Timestamp = reader.GetInt32(4)
+                    });
+                }
+            }
+
+            return locations;
+        }
+
+        public void Close()
+        {
+            m_connection.Dispose();
+        }
+
+        private void Open()
         {
             if (m_connection != null && m_connection.State == System.Data.ConnectionState.Open)
             {
                 throw new Exception("DB connection is already in Open state");
             }
 
-            PathToDB = Path.Combine(
+            m_pathToDB = Path.Combine(
                 Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDownloads).AbsolutePath,
                 "GreenLightTracker",
                 "db_green_light_tracker.db");
 
-            //PathToDB = Path.Combine(
-            //   Environment.GetFolderPath(Environment.SpecialFolder.Personal),
-            //   "db_green_light_tracker.db");
+            m_dbAlreadyInitialized = File.Exists(m_pathToDB);
 
-            m_dbAlreadyInitialized = File.Exists(PathToDB);
-
-            var connectionString = string.Format("Data Source={0};Version=3;", PathToDB);
+            var connectionString = string.Format("Data Source={0};Version=3;", m_pathToDB);
 
             m_connection = new SqliteConnection(connectionString);
 
@@ -53,57 +100,10 @@ namespace GreenLightTracker.Src
             InitializeDb();
         }
 
-        public void Close()
-        {
-            m_connection.Dispose();
-        }
-
-        public long GetGpsLocationCount()
-        {
-            string cmd = "SELECT count(gpsLocationId) FROM GpsLocation";
-            return GetQuery().ExecuteScalar<long>(cmd);
-        }
-
         public void CleanGpsLocationTable()
         {
             string cmd = "DELETE FROM GpsLocation";
             GetQuery().ExecuteCommand(cmd);
-        }
-
-        public ICollection<GpsLocation> GetAllGpsLocations()
-        {
-            string cmd = "SELECT longitude, latitude, altitude, speed, timestamp "
-                + "FROM GpsLocation";
-
-            var locations = new LinkedList<GpsLocation>();
-
-            using (IDataReader reader = GetQuery().ExecuteQuery(cmd))
-            {
-                while (reader.Read())
-                {
-                    locations.AddLast(new GpsLocation
-                    {
-                        //Longitude = reader.GetDouble(0),
-                        //Latitude = reader.GetDouble(1),
-                        Longitude = reader.GetDouble(1),
-                        Latitude = reader.GetDouble(0),
-                        Altitude = reader.GetDouble(2),
-                        Timestamp = reader.GetInt32(4)
-                    });
-                }
-            }
-
-            return locations;
-        }
-
-        public void OnGpsLocationReceived(GpsLocation l)
-        {
-            var time = Java.Lang.JavaSystem.CurrentTimeMillis();
-            string sql = string.Format("Insert Into GpsLocation "
-                + "(timestamp, longitude, latitude, altitude, speed) "
-                + "values ({0}, {1}, {2}, {3}, {4})", time, l.Latitude, l.Longitude, l.Altitude, l.Speed);
-
-            GetQuery().ExecuteCommand(sql);
         }
 
         public string CreateBackup()
@@ -129,7 +129,7 @@ namespace GreenLightTracker.Src
                     Directory.CreateDirectory(backupFolder);
                 }
 
-                File.Copy(PathToDB, destAbsolutePath);
+                File.Copy(m_pathToDB, destAbsolutePath);
             }
             catch (Exception ex)
             {
@@ -150,7 +150,8 @@ namespace GreenLightTracker.Src
                     + ", longitude float"
                     + ", latitude float"
                     + ", altitude float"
-                    + ", speed float)";
+                    + ", speed float"
+                    + ", ride_id text)";
 
                 GetQuery().ExecuteCommand(sql);
 

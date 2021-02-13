@@ -1,2 +1,0 @@
-﻿--CREATE TABLE GpsLocation (gpsLocationId INTEGER PRIMARY KEY AUTOINCREMENT, timestamp INTEGER, longitude float, latitude float, altitude float, speed float);
---CREATE TABLE Versions (timestamp INTEGER, major INTEGER, minor INTEGER);
