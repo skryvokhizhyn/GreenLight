@@ -86,7 +86,6 @@
   <ItemGroup>
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Src\Activities\DBPageActivity.cs" />
     <Compile Include="Src\ActivityCallbackUtils.cs" />
     <Compile Include="Src\DBQuery.cs" />
     <Compile Include="Src\DoublyLinkedList.cs" />
@@ -98,6 +97,7 @@
     <Compile Include="Src\GpsUtils.cs" />
     <Compile Include="Src\Activities\GreenLightTrackerActivity.cs" />
     <Compile Include="Src\GpsLocation.cs" />
+    <Compile Include="Src\PathAWSDTO.cs" />
     <Compile Include="Src\PathData.cs" />
     <Compile Include="Src\PathId.cs" />
     <Compile Include="Src\StorageAWS.cs" />
@@ -114,9 +114,6 @@
     <None Include="Resources\AboutResources.txt" />
     <None Include="Properties\AndroidManifest.xml" />
     <None Include="Assets\AboutAssets.txt" />
-    <AndroidResource Include="Resources\layout\db_page_widget.axml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\layout\tracker_main_widget.axml">

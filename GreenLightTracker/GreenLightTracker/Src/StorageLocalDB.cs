@@ -34,11 +34,11 @@ namespace GreenLightTracker.Src
             }
         }
 
-        public long GetGpsLocationCount()
+        /*public long GetGpsLocationCount()
         {
             string cmd = "SELECT count(gpsLocationId) FROM GpsLocation";
             return GetQuery().ExecuteScalar<long>(cmd);
-        }
+        }*/
 
         public ICollection<GpsLocation> GetAllGpsLocations()
         {

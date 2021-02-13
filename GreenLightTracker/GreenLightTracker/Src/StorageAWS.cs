@@ -9,20 +9,23 @@ namespace GreenLightTracker.Src
     {
         public async void Store(Guid uuid, ICollection<GpsLocation> path)
         {
-            string jsonString = JsonSerializer.Serialize(path);
+            var pathDto = new PathAWSDTO
+            {
+                route_id = uuid.ToString(),
+                ts = Java.Lang.JavaSystem.CurrentTimeMillis().ToString(),
+                route = JsonSerializer.Serialize(path)
+            };
+
+            string jsonString = JsonSerializer.Serialize<PathAWSDTO>(pathDto);
 
             using (var client = new HttpClient())
             {
-                var response = await client.PostAsync("http://yourUrl", new StringContent(jsonString, System.Text.Encoding.UTF8, "application/json"));
+                var response = await client.PostAsync("https://2qf6oc5nc2.execute-api.eu-central-1.amazonaws.com/prod/collect", 
+                    new StringContent(jsonString, System.Text.Encoding.UTF8, "application/json"));
 
                 if (!response.IsSuccessStatusCode)
                     throw new Exception("Bad response" + response.Content);
             }
-        }
-
-        public long GetGpsLocationCount()
-        {
-            return 0;
         }
 
         public ICollection<GpsLocation> GetAllGpsLocations()

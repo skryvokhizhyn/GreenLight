@@ -147,13 +147,6 @@ namespace GreenLightTracker.Src.Activities
             m_locationBuffer.Clear();
         }
 
-        [Java.Interop.Export()]
-        public void OnDBPageButtonClick(View v)
-        {
-            Intent dbPageActivity = new Intent(this, typeof(DBPageActivity));
-            StartActivity(dbPageActivity);
-        }
-
         #region View manipulation callbacks
 
         [Java.Interop.Export()]
@@ -234,7 +227,6 @@ namespace GreenLightTracker.Src.Activities
                 OnStorageAWSClick(null);
             }
 
-            FindViewById<Button>(Resource.Id.db_page_button).Enabled = true;
             FindViewById<Button>(Resource.Id.collect_button).Enabled = true;
             FindViewById<Button>(Resource.Id.track_button).Enabled = true;
             FindViewById<Button>(Resource.Id.draw_button).Enabled = true;

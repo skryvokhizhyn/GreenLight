@@ -47,103 +47,88 @@ namespace GreenLightTracker
 			public const int collect_button = 2130771968;
 			
 			// aapt resource value: 0x7F010001
-			public const int db_backup_button = 2130771969;
+			public const int draw_button = 2130771969;
 			
 			// aapt resource value: 0x7F010002
-			public const int db_clean_up_button = 2130771970;
+			public const int exit_button = 2130771970;
 			
 			// aapt resource value: 0x7F010003
-			public const int db_page_button = 2130771971;
+			public const int linearLayout1 = 2130771971;
 			
 			// aapt resource value: 0x7F010004
-			public const int draw_button = 2130771972;
+			public const int linearLayout2 = 2130771972;
 			
 			// aapt resource value: 0x7F010005
-			public const int exit_button = 2130771973;
+			public const int linearLayout3 = 2130771973;
 			
 			// aapt resource value: 0x7F010006
-			public const int linearLayout1 = 2130771974;
+			public const int linearLayout4 = 2130771974;
 			
 			// aapt resource value: 0x7F010007
-			public const int linearLayout2 = 2130771975;
+			public const int move_down = 2130771975;
 			
 			// aapt resource value: 0x7F010008
-			public const int linearLayout3 = 2130771976;
+			public const int move_left = 2130771976;
 			
 			// aapt resource value: 0x7F010009
-			public const int linearLayout4 = 2130771977;
+			public const int move_reset = 2130771977;
 			
 			// aapt resource value: 0x7F01000A
-			public const int move_down = 2130771978;
+			public const int move_right = 2130771978;
 			
 			// aapt resource value: 0x7F01000B
-			public const int move_left = 2130771979;
+			public const int move_up = 2130771979;
 			
 			// aapt resource value: 0x7F01000C
-			public const int move_reset = 2130771980;
+			public const int path_view = 2130771980;
 			
 			// aapt resource value: 0x7F01000D
-			public const int move_right = 2130771981;
+			public const int radioGroup1 = 2130771981;
 			
 			// aapt resource value: 0x7F01000E
-			public const int move_up = 2130771982;
+			public const int reset_button = 2130771982;
 			
 			// aapt resource value: 0x7F01000F
-			public const int path_view = 2130771983;
+			public const int row_count_filtered_text = 2130771983;
 			
 			// aapt resource value: 0x7F010010
-			public const int radioGroup1 = 2130771984;
+			public const int row_count_taken_text = 2130771984;
 			
 			// aapt resource value: 0x7F010011
-			public const int reset_button = 2130771985;
+			public const int row_count_total_text = 2130771985;
 			
 			// aapt resource value: 0x7F010012
-			public const int row_count_button = 2130771986;
+			public const int row_neighbors_count = 2130771986;
 			
 			// aapt resource value: 0x7F010013
-			public const int row_count_filtered_text = 2130771987;
+			public const int row_road_id = 2130771987;
 			
 			// aapt resource value: 0x7F010014
-			public const int row_count_taken_text = 2130771988;
+			public const int stop_button = 2130771988;
 			
 			// aapt resource value: 0x7F010015
-			public const int row_count_text = 2130771989;
+			public const int store_aws_button = 2130771989;
 			
 			// aapt resource value: 0x7F010016
-			public const int row_count_total_text = 2130771990;
+			public const int store_db_button = 2130771990;
 			
 			// aapt resource value: 0x7F010017
-			public const int row_neighbors_count = 2130771991;
+			public const int textView1 = 2130771991;
 			
 			// aapt resource value: 0x7F010018
-			public const int row_road_id = 2130771992;
+			public const int textView2 = 2130771992;
 			
 			// aapt resource value: 0x7F010019
-			public const int stop_button = 2130771993;
+			public const int textView3 = 2130771993;
 			
 			// aapt resource value: 0x7F01001A
-			public const int store_aws_button = 2130771994;
+			public const int track_button = 2130771994;
 			
 			// aapt resource value: 0x7F01001B
-			public const int store_db_button = 2130771995;
+			public const int zoom_in = 2130771995;
 			
 			// aapt resource value: 0x7F01001C
-			public const int textView1 = 2130771996;
-			
-			// aapt resource value: 0x7F01001D
-			public const int textView2 = 2130771997;
-			
-			// aapt resource value: 0x7F01001E
-			public const int textView3 = 2130771998;
-			
-			// aapt resource value: 0x7F01001F
-			public const int track_button = 2130771999;
-			
-			// aapt resource value: 0x7F010020
-			public const int zoom_in = 2130772000;
-			
-			// aapt resource value: 0x7F010021
-			public const int zoom_out = 2130772001;
+			public const int zoom_out = 2130771996;
 			
 			static Id()
 			{
@@ -159,10 +144,7 @@ namespace GreenLightTracker
 		{
 			
 			// aapt resource value: 0x7F020000
-			public const int db_page_widget = 2130837504;
-			
-			// aapt resource value: 0x7F020001
-			public const int tracker_main_widget = 2130837505;
+			public const int tracker_main_widget = 2130837504;
 			
 			static Layout()
 			{

@@ -21,14 +21,6 @@
             android:text="Exit"
             android:onClick="OnExitButtonClick" />
         <Button
-            android:id="@+id/db_page_button"
-            android:padding="10dp"
-            android:text="DB"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:onClick="OnDBPageButtonClick"
-            android:enabled="false" />
-        <Button
             android:text="Draw"
             android:id="@+id/draw_button"
             android:layout_width="wrap_content"
@@ -72,19 +64,19 @@
             android:text="Stop"
             android:onClick="OnStopButtonClick" />
         <Button
-            android:text="Reset"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:id="@+id/reset_button"
-            android:onClick="OnResetBufferButtonClick"
-            android:enabled="false" />
-        <Button
             android:id="@+id/collect_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="10dp"
             android:text="Collect"
             android:onClick="OnCollectButtonClick"
+            android:enabled="false" />
+        <Button
+            android:text="Reset"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:id="@+id/reset_button"
+            android:onClick="OnResetBufferButtonClick"
             android:enabled="false" />
         <Button
             android:text="Track"

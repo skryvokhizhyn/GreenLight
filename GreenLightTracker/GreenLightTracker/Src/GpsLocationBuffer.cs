@@ -26,14 +26,18 @@ namespace GreenLightTracker.Src
         {
             if (m_locations.Count > 0)
             {
-                Storage.Store(Session.Value, m_locations);
+                try
+                {
+                    Storage.Store(Session.Value, m_locations);
+                }
+                catch (Exception)
+                {
+                }
+
                 m_locations.Clear();
             }
         }
 
-        public void Clear()
-        {
-            m_locations.Clear();
-        }
+        public void Clear() => m_locations.Clear();
     }
 }
