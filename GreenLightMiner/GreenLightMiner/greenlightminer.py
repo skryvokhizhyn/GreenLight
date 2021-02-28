@@ -1,6 +1,6 @@
 import sys
 
-import gpsutils
+import pointutils
 import route
 import routeutils
 import source
@@ -27,8 +27,14 @@ def main() -> None:
         raise Exception("Unexpected source type. Valid options are [db, aws]")
 
     for r in routes.values():
-        print(len(routeutils.remove_close_points(
-            gpsutils.gps_route_to_xyz_route(r), 10)))
+        rt = pointutils.gps_route_to_xyz_route(r)
+        routeutils.remove_close_points(rt, 10)
+
+        if routeutils.get_length(rt) < 100:
+            print("route skipped")
+            continue
+
+        print(str(len(r)) + " " + str(len(rt)) + " " + str(routeutils.get_length(rt)))
 
 
 if __name__ == "__main__":

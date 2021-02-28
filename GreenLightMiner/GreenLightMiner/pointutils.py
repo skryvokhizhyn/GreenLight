@@ -16,3 +16,7 @@ def __gps_point_to_xyz_point(gps_point: RouteGpsPoint) -> RouteXyzPoint:
 
 def gps_route_to_xyz_route(gps_route: GpsRoute) -> XyzRoute:
     return [__gps_point_to_xyz_point(p) for p in gps_route]
+
+
+def distance(p1: RouteXyzPoint, p2: RouteXyzPoint) -> float:
+    return math.sqrt(math.pow(p1.x - p2.x, 2) + math.pow(p1.y - p2.y, 2) + math.pow(p1.z - p2.z, 2))

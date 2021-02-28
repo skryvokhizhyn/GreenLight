@@ -32,6 +32,9 @@ class RouteXyzPoint:
         self.__y = y
         self.__z = z
 
+    def __eq__(self, other):
+        return self.__ts == other.__ts and self.__x == other.__x and self.__y == other.__y and self.__z == other.__z
+
     @property
     def x(self) -> float:
         return self.__x
