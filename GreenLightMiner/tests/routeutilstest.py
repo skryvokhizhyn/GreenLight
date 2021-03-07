@@ -189,3 +189,33 @@ class RouteUtilsTest_get_length(unittest.TestCase):
             route.RouteXyzPoint(0, 10, 0, 0),
             route.RouteXyzPoint(0, 20, 0, 0)
         ]))
+
+
+class RouteUtilsTest_split_by_time(unittest.TestCase):
+    def test_empty(self):
+        res = routeutils.split_by_time([], 5)
+        self.assertEqual(1, len(res))
+        self.assertEqual(0, len(res[0]))
+
+    def test_one(self):
+        self.assertEqual(1, len(routeutils.split_by_time([route.RouteXyzPoint(0, 0, 0, 0)], 5)))
+
+    def test_all_in_one_chunk(self):
+        rt = [route.RouteXyzPoint(0, 0, 0, 0), route.RouteXyzPoint(1, 0, 0, 0), route.RouteXyzPoint(2, 0, 0, 0), route.RouteXyzPoint(3, 0, 0, 0)]
+        res = routeutils.split_by_time(rt, 10)
+
+        self.assertEqual(1, len(res))
+        self.assertEqual(4, len(res[0]))
+
+    def test_multiple(self):
+        rt = [route.RouteXyzPoint(0, 0, 0, 0), route.RouteXyzPoint(10, 0, 0, 0), route.RouteXyzPoint(11, 0, 0, 0), route.RouteXyzPoint(20, 0, 0, 0)]
+        res = routeutils.split_by_time(rt, 5)
+
+        self.assertEqual(3, len(res))
+        self.assertEqual(1, len(res[0]))
+        self.assertEqual(route.RouteXyzPoint(0, 0, 0, 0), res[0][0])
+        self.assertEqual(2, len(res[1]))
+        self.assertEqual(route.RouteXyzPoint(10, 0, 0, 0), res[1][0])
+        self.assertEqual(route.RouteXyzPoint(11, 0, 0, 0), res[1][1])
+        self.assertEqual(1, len(res[2]))
+        self.assertEqual(route.RouteXyzPoint(20, 0, 0, 0), res[2][0])

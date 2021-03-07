@@ -1,6 +1,9 @@
+from typing import List
+
 import pointutils
 import route
 import routeutils
+from xyminmax import XYMinMax
 
 
 def get_mid_point_index(rt: route.XyzRoute, indexFrom: int, indexTo: int) -> int:
@@ -104,3 +107,33 @@ def get_length(rt: route.XyzRoute) -> float:
         sm += pointutils.distance(rt[i-1], rt[i])
 
     return sm
+
+
+def split_by_time(rt: route.XyzRoute, split_ms: int) -> List[route.XyzRoute]:
+    if len(rt) < 2:
+        return [rt]
+
+    res = []
+    j = 0
+    i = 1
+
+    while i < len(rt):
+        if rt[i].ts - rt[i - 1].ts > split_ms:
+            res.append(rt[j:i])
+            j = i
+
+        i += 1
+
+    res.append(rt[j:i])
+
+    return res
+
+
+def get_routes_xy_min_max(rts: List[route.XyzRoute]) -> XYMinMax:
+    min_max = XYMinMax(100000000, 1000000000, -1000000000, -1000000000)
+
+    for rt in rts:
+        for p in rt:
+            min_max = XYMinMax(x_min=min(min_max.x_min, p.x), y_min=min(min_max.y_min, p.y), x_max=max(min_max.x_max, p.x), y_max=max(min_max.y_max, p.y))
+
+    return min_max

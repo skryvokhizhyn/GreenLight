@@ -1,13 +1,15 @@
 import sys
+import traceback
 
 import pointutils
 import route
 import routeutils
 import source
 
+from gui.routesvisualizer import RoutesVisualizer
+
 
 def main() -> None:
-
     if len(sys.argv) < 3:
         raise Exception("Specify source type. E.g.: '-t db' or '-t aws'")
 
@@ -26,19 +28,30 @@ def main() -> None:
     else:
         raise Exception("Unexpected source type. Valid options are [db, aws]")
 
-    for r in routes.values():
-        rt = pointutils.gps_route_to_xyz_route(r)
+    xyz_routes = [pointutils.gps_route_to_xyz_route(r) for r in routes.values()]
+
+    xy_min_max = routeutils.get_routes_xy_min_max(xyz_routes)
+
+    viewVisualizer = RoutesVisualizer(xy_min_max)
+    for rt in xyz_routes:
         routeutils.remove_close_points(rt, 10)
 
-        if routeutils.get_length(rt) < 100:
-            print("route skipped")
-            continue
+        split_routes = routeutils.split_by_time(rt, 5000)
 
-        print(str(len(r)) + " " + str(len(rt)) + " " + str(routeutils.get_length(rt)))
+        for sub_route in split_routes:
+            if routeutils.get_length(sub_route) < 100:
+                print("route skipped")
+                continue
+
+            print(str(len(rt)) + " " + str(len(sub_route)) + " " + str(routeutils.get_length(sub_route)))
+
+            viewVisualizer.add_points(sub_route)
+
+    viewVisualizer.run()
 
 
 if __name__ == "__main__":
     try:
         main()
-    except Exception as ex:
-        print("Error: " + str(ex))
+    except Exception:
+        print(traceback.print_exc())
