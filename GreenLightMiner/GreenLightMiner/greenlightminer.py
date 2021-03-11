@@ -2,7 +2,6 @@ import sys
 import traceback
 
 import pointutils
-import route
 import routeutils
 import source
 
@@ -54,4 +53,4 @@ if __name__ == "__main__":
     try:
         main()
     except Exception:
-        print(traceback.print_exc())
+        traceback.print_exc()
