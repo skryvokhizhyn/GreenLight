@@ -1,12 +1,15 @@
-from typing import List
+from typing import List, Optional
+
+from routecandidateinfo import RouteCandidateInfo
 
 import pointutils
 import route
 import routeutils
+import utils
 from xyminmax import XYMinMax
 
 
-def get_mid_point_index(rt: route.XyzRoute, indexFrom: int, indexTo: int) -> int:
+def get_mid_point_index(rt: route.XyzRoute, indexFrom: int, indexTo: int) -> Optional[int]:
     if indexFrom < 0 or indexFrom < 0 or indexTo >= len(rt) or indexFrom > indexTo:
         raise Exception("Wrong indices given to get_mid_point_index: " + str(len(rt)) + " " + str(indexFrom) + " " + str(indexTo))
 
@@ -32,40 +35,7 @@ def get_mid_point_index(rt: route.XyzRoute, indexFrom: int, indexTo: int) -> int
 
         i += 1
 
-    return int(m)
-
-
-def remove_all_none(rt: route.XyzRoute) -> None:
-    ln = len(rt)
-
-    k = 0
-    while k < ln and rt[k] is None:
-        k += 1
-
-    if k == ln:
-        rt.clear()
-        return
-
-    first_non_None = k
-    k += 1
-
-    while k < ln and not rt[k] is None:
-        k += 1
-
-    i = k + 1
-
-    while i < ln:
-        if not rt[i] is None:
-            rt[k] = rt[i]
-            k += 1
-
-        i += 1
-
-    if k > first_non_None + 1:
-        del rt[k:]
-
-    if first_non_None > 0:
-        del rt[:first_non_None]
+    return m
 
 
 def remove_close_points(rt: route.XyzRoute, dist_m: float) -> None:
@@ -94,7 +64,7 @@ def remove_close_points(rt: route.XyzRoute, dist_m: float) -> None:
     for k in range(j + 1, i - 1):
         rt[k] = None
 
-    remove_all_none(rt)
+    utils.remove_all_none_from_list(rt)
 
 
 def get_length(rt: route.XyzRoute) -> float:
@@ -104,7 +74,7 @@ def get_length(rt: route.XyzRoute) -> float:
     sm = 0
 
     for i in range(1, len(rt)):
-        sm += pointutils.distance(rt[i-1], rt[i])
+        sm += pointutils.distance(rt[i - 1], rt[i])
 
     return sm
 
@@ -137,3 +107,56 @@ def get_routes_xy_min_max(rts: List[route.XyzRoute]) -> XYMinMax:
             min_max = XYMinMax(x_min=min(min_max.x_min, p.x), y_min=min(min_max.y_min, p.y), x_max=max(min_max.x_max, p.x), y_max=max(min_max.y_max, p.y))
 
     return min_max
+
+
+def advance_candidates(point: route.RouteXyzPoint, candidates: List[RouteCandidateInfo], routes: route.XyzRoute, tolerance: float) -> None:
+    for candidate_id, candidate in enumerate(candidates):
+        if candidate.route_id >= len(routes):
+            raise Exception('Candidate route id is out of range')
+
+        rt = routes[candidate.route_id]
+
+        if candidate.point_id >= len(rt):
+            raise Exception('Candidate point is out of range')
+
+        pt_id = candidate.point_id
+        checked_point: route.XyzRoute = None
+        checked_point_id: int = 0
+
+        while pt_id < len(rt) and pointutils.distance(point, rt[pt_id]) <= tolerance:
+            checked_point = rt[pt_id]
+            checked_point_id = pt_id
+            pt_id += 1
+
+        if checked_point is None:
+            candidates[candidate_id] = None
+        else:
+            candidates[candidate_id] = RouteCandidateInfo(checked_point, checked_point_id, candidate.route_id)
+
+    utils.remove_all_none_from_list(candidates)
+
+
+def remove_not_same_direction(point_prev: route.RouteXyzPoint, point_curr: route.RouteXyzPoint, candidates: List[RouteCandidateInfo], routes: route.XyzRoute, tolerance_degrees: float) -> None:
+    for candidate_id, candidate in enumerate(candidates):
+        if candidate.route_id >= len(routes):
+            raise Exception('Candidate route id is out of range')
+
+        rt = routes[candidate.route_id]
+
+        if candidate.point_id >= len(rt):
+            raise Exception('Candidate point is out of range')
+
+        # treat candidates with id 0 as always matching
+        if candidate.point_id == 0:
+            continue
+
+        candidate_point_prev = rt[candidate.point_id - 1]
+        candidate_point_curr = rt[candidate.point_id]
+
+        point_dir = pointutils.get_direction2d(point_prev, point_curr)
+        point_candidate_dir = pointutils.get_direction2d(candidate_point_prev, candidate_point_curr)
+
+        if pointutils.get_angle_between(point_dir, point_candidate_dir) > tolerance_degrees:
+            candidates[candidate_id] = None
+
+    utils.remove_all_none_from_list(candidates)
