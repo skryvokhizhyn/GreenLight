@@ -1,17 +1,17 @@
 from typing import List
 
-import pointutils
 import route
 import routeutils
+from routecancidateinfolocator import RouteCandidateInfoLocator
 from routecandidateinfo import RouteCandidateInfo
 
 
 class RouteAggregator:
-    def __init__(self):
-        self.__tolerance = 1
-        self.__codirection_angle_degrees = 10
+    def __init__(self, tolerance_dist: float, tolerance_angle: float):
+        self.__tolerance = tolerance_dist
+        self.__codirection_angle_degrees = tolerance_angle
         self.__routes: List[route.XyzRoute] = []
-        self.__infos: List[RouteCandidateInfo] = []
+        self.__locator = RouteCandidateInfoLocator(self.__tolerance * 10)
 
     # doesn't aggregate co-directional routes and ignores points
     def consume_route(self, rt: route.XyzRoute) -> None:
@@ -24,7 +24,7 @@ class RouteAggregator:
             routeutils.advance_candidates(rt[i], candidates, self.__routes, self.__tolerance)
 
             if len(candidates) == 0:
-                candidates = self.__get_closest_points(rt[i])
+                candidates = self.__get_closest_points(rt[i], self.__tolerance)
 
                 if i > 0:
                     routeutils.remove_not_same_direction(rt[i - 1], rt[i], candidates, self.__routes, self.__codirection_angle_degrees)
@@ -41,15 +41,14 @@ class RouteAggregator:
         for r in buffered_routes:
             self.__add_route(r)
 
-    @property
+    @ property
     def routes(self) -> List[route.XyzRoute]:
         return self.__routes
 
-    def __get_closest_points(self, pt: route.RouteXyzPoint) -> List[RouteCandidateInfo]:
+    def __get_closest_points(self, pt: route.RouteXyzPoint, tolerance: float) -> List[RouteCandidateInfo]:
         pts: List[RouteCandidateInfo] = []
-        for info in self.__infos:
-            if pointutils.distance(pt, info.point) <= self.__tolerance:
-                pts.append(info)
+        for info in self.__locator.get(pt, tolerance):
+            pts.append(info)
 
         return pts
 
@@ -59,6 +58,7 @@ class RouteAggregator:
 
         i = 0
         for p in rt:
-            self.__infos.append(RouteCandidateInfo(p, len(self.__routes), i))
+            self.__locator.put(RouteCandidateInfo(p, i, len(self.__routes)))
+            i += 1
 
         self.__routes.append(rt.copy())

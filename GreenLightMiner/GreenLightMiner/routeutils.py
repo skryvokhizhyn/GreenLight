@@ -54,9 +54,9 @@ def remove_close_points(rt: route.XyzRoute, dist_m: float) -> None:
         if i - j > 2:
             m = routeutils.get_mid_point_index(rt, j, i)
 
-        for k in range(j + 1, i - 1):
-            if k != m:
-                rt[k] = None
+            for k in range(j + 1, i):
+                if k != m:
+                    rt[k] = None
 
         j = i
         i += 1

@@ -16,7 +16,9 @@ def __gps_point_to_xyz_point(gps_point: RouteGpsPoint) -> RouteXyzPoint:
         gps_point.ts,
         __EARTH_RADIUS_METERS * cosLat * math.cos(lonRad),
         __EARTH_RADIUS_METERS * cosLat * math.sin(lonRad),
-        __EARTH_RADIUS_METERS * math.sin(latRad) + gps_point.alt)
+        # for now only 2d projections are processed
+        0  # __EARTH_RADIUS_METERS * math.sin(latRad) + gps_point.alt
+    )
 
 
 def gps_route_to_xyz_route(gps_route: GpsRoute) -> XyzRoute:

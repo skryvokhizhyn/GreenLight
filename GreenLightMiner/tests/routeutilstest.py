@@ -78,6 +78,24 @@ class RouteUtilsTest_remove_close_points(unittest.TestCase):
         self.assertEqual(route.RouteXyzPoint(0, 0, 0, 0), rt[0])
         self.assertEqual(route.RouteXyzPoint(0, 40, 0, 0), rt[1])
 
+    def test_two_points_between_first_kept(self):
+        rt = [route.RouteXyzPoint(0, 0, 0, 0), route.RouteXyzPoint(0, 20, 0, 0), route.RouteXyzPoint(0, 22, 0, 0), route.RouteXyzPoint(0, 30, 0, 0)]
+        routeutils.remove_close_points(rt, 25)
+
+        self.assertEqual(3, len(rt))
+        self.assertEqual(route.RouteXyzPoint(0, 0, 0, 0), rt[0])
+        self.assertEqual(route.RouteXyzPoint(0, 20, 0, 0), rt[1])
+        self.assertEqual(route.RouteXyzPoint(0, 30, 0, 0), rt[2])
+
+    def test_two_points_between_second_kept(self):
+        rt = [route.RouteXyzPoint(0, 0, 0, 0), route.RouteXyzPoint(0, 5, 0, 0), route.RouteXyzPoint(0, 15, 0, 0), route.RouteXyzPoint(0, 30, 0, 0)]
+        routeutils.remove_close_points(rt, 25)
+
+        self.assertEqual(3, len(rt))
+        self.assertEqual(route.RouteXyzPoint(0, 0, 0, 0), rt[0])
+        self.assertEqual(route.RouteXyzPoint(0, 15, 0, 0), rt[1])
+        self.assertEqual(route.RouteXyzPoint(0, 30, 0, 0), rt[2])
+
 
 class RouteUtilsTest_get_mid_point_index(unittest.TestCase):
     def test_wrong_or_close_indices(self):

@@ -5,6 +5,7 @@ import pointutils
 import routeutils
 import source
 
+from routeaggregator import RouteAggregator
 from gui.routesvisualizer import RoutesVisualizer
 
 
@@ -32,6 +33,8 @@ def main() -> None:
     xy_min_max = routeutils.get_routes_xy_min_max(xyz_routes)
 
     viewVisualizer = RoutesVisualizer(xy_min_max)
+    aggregator = RouteAggregator(tolerance_dist=10, tolerance_angle=15)
+
     for rt in xyz_routes:
         routeutils.remove_close_points(rt, 10)
 
@@ -44,7 +47,11 @@ def main() -> None:
 
             print(str(len(rt)) + " " + str(len(sub_route)) + " " + str(routeutils.get_length(sub_route)))
 
-            viewVisualizer.add_points(sub_route)
+            # viewVisualizer.add_points(sub_route)
+            aggregator.consume_route(sub_route)
+
+    for r in aggregator.routes:
+        viewVisualizer.add_points(r)
 
     viewVisualizer.run()
 
