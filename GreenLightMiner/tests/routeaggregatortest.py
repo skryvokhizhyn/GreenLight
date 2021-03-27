@@ -1,7 +1,7 @@
 import unittest
 
 from routeaggregator import RouteAggregator
-from route import RouteXyzPoint
+from pointxyz import PointXyz
 
 
 class RouteAggregatorTest(unittest.TestCase):
@@ -11,36 +11,36 @@ class RouteAggregatorTest(unittest.TestCase):
 
     def test_one(self):
         aggregator = RouteAggregator(1, 1)
-        aggregator.consume_route([RouteXyzPoint(0, 0, 0, 0), RouteXyzPoint(0, 1, 0, 0), RouteXyzPoint(0, 2, 0, 0)])
+        aggregator.consume_route([PointXyz(0, 0, 0), PointXyz(1, 0, 0), PointXyz(2, 0, 0)])
         self.assertEqual(1, len(aggregator.routes))
 
     def test_clone(self):
         aggregator = RouteAggregator(1, 1)
-        rt = [RouteXyzPoint(0, 0, 0, 0), RouteXyzPoint(0, 1, 0, 0), RouteXyzPoint(0, 2, 0, 0)]
+        rt = [PointXyz(0, 0, 0), PointXyz(1, 0, 0), PointXyz(2, 0, 0)]
         aggregator.consume_route(rt)
         self.assertNotEqual(rt, aggregator.routes)
 
     def test_covered(self):
         aggregator = RouteAggregator(1, 1)
-        aggregator.consume_route([RouteXyzPoint(0, 0, 0, 0), RouteXyzPoint(0, 1, 0, 0), RouteXyzPoint(0, 2, 0, 0)])
-        aggregator.consume_route([RouteXyzPoint(0, 0.5, 0, 0), RouteXyzPoint(0, 1.5, 0, 0)])
+        aggregator.consume_route([PointXyz(0, 0, 0), PointXyz(1, 0, 0), PointXyz(2, 0, 0)])
+        aggregator.consume_route([PointXyz(0.5, 0, 0), PointXyz(1.5, 0, 0)])
         self.assertEqual(1, len(aggregator.routes))
 
     def test_distant(self):
         aggregator = RouteAggregator(1, 1)
-        aggregator.consume_route([RouteXyzPoint(0, 0, 0, 0), RouteXyzPoint(0, 1, 0, 0), RouteXyzPoint(0, 2, 0, 0)])
-        aggregator.consume_route([RouteXyzPoint(0, 5, 0, 0), RouteXyzPoint(0, 6, 0, 0)])
+        aggregator.consume_route([PointXyz(0, 0, 0), PointXyz(1, 0, 0), PointXyz(2, 0, 0)])
+        aggregator.consume_route([PointXyz(5, 0, 0), PointXyz(6, 0, 0)])
         self.assertEqual(2, len(aggregator.routes))
 
     def test_add_route_small(self):
         aggregator = RouteAggregator(1, 1)
-        aggregator._RouteAggregator__add_route([RouteXyzPoint(0, 5, 0, 0)])
+        aggregator._RouteAggregator__add_route([PointXyz(5, 0, 0)])
         self.assertEqual(0, len(aggregator.routes))
 
     def test_add_routes(self):
         aggregator = RouteAggregator(1, 1)
-        rt0 = [RouteXyzPoint(0, 5, 0, 0), RouteXyzPoint(0, 6, 0, 0)]
-        rt1 = [RouteXyzPoint(0, 0, 0, 0), RouteXyzPoint(0, 1, 0, 0), RouteXyzPoint(0, 2, 0, 0)]
+        rt0 = [PointXyz(5, 0, 0), PointXyz(6, 0, 0)]
+        rt1 = [PointXyz(0, 0, 0), PointXyz(1, 0, 0), PointXyz(2, 0, 0)]
         aggregator._RouteAggregator__add_route(rt0)
         aggregator._RouteAggregator__add_route(rt1)
 
@@ -70,23 +70,23 @@ class RouteAggregatorTest(unittest.TestCase):
 
     def test_get_cloasest_points(self):
         aggregator = RouteAggregator(1, 1)
-        rt0 = [RouteXyzPoint(0, -5, 0, 0), RouteXyzPoint(0, 5, 0, 0), RouteXyzPoint(0, 7, 0, 0)]
-        rt1 = [RouteXyzPoint(0, 0, 0, 0), RouteXyzPoint(0, 1, 0, 0), RouteXyzPoint(0, 2, 0, 0)]
+        rt0 = [PointXyz(-5, 0, 0), PointXyz(5, 0, 0), PointXyz(7, 0, 0)]
+        rt1 = [PointXyz(0, 0, 0), PointXyz(1, 0, 0), PointXyz(2, 0, 0)]
         aggregator._RouteAggregator__add_route(rt0)
         aggregator._RouteAggregator__add_route(rt1)
 
-        infos = aggregator._RouteAggregator__get_closest_points(RouteXyzPoint(0, 3, 0, 0), 2)
+        infos = aggregator._RouteAggregator__get_closest_points(PointXyz(3, 0, 0), 2)
 
         self.assertEqual(3, len(infos))
 
-        self.assertEqual(RouteXyzPoint(0, 5, 0, 0), infos[0].point)
+        self.assertEqual(PointXyz(5, 0, 0), infos[0].point)
         self.assertEqual(1, infos[0].point_id)
         self.assertEqual(0, infos[0].route_id)
 
-        self.assertEqual(RouteXyzPoint(0, 1, 0, 0), infos[1].point)
+        self.assertEqual(PointXyz(1, 0, 0), infos[1].point)
         self.assertEqual(1, infos[1].point_id)
         self.assertEqual(1, infos[1].route_id)
 
-        self.assertEqual(RouteXyzPoint(0, 2, 0, 0), infos[2].point)
+        self.assertEqual(PointXyz(2, 0, 0), infos[2].point)
         self.assertEqual(2, infos[2].point_id)
         self.assertEqual(1, infos[2].route_id)

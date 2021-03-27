@@ -1,14 +1,14 @@
 import json
 import sqlite3
-from typing import Dict, List
+from typing import Dict, List, Any
 
 import boto3
 
 import route
 
 
-def __get_routes(rows) -> Dict[str, route.GpsRoute]:
-    routes = {}
+def __get_routes(rows: Any) -> Dict[str, route.GpsRoute]:
+    routes: Dict[str, route.GpsRoute] = {}
 
     for row in rows:
         if len(row) > 0:
@@ -18,7 +18,7 @@ def __get_routes(rows) -> Dict[str, route.GpsRoute]:
     return routes
 
 
-def get_routes_from_db(db_path: str) -> List[List[str]]:
+def get_routes_from_db(db_path: str) -> Dict[str, route.GpsRoute]:
     conn = sqlite3.connect(db_path)
 
     cur = conn.cursor()
@@ -29,7 +29,7 @@ def get_routes_from_db(db_path: str) -> List[List[str]]:
 
 
 def __parse_aws_items(items) -> Dict[str, List[str]]:
-    routes = {}
+    routes: Dict[str, List[str]] = {}
 
     for item in items:
         payload = json.loads(item['payload'])
@@ -76,7 +76,7 @@ def get_routes_from_aws() -> Dict[str, route.GpsRoute]:
     done = False
     start_key = None
 
-    res = {}
+    res: Dict[str, route.GpsRoute] = {}
 
     while not done:
         if start_key:

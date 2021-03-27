@@ -1,22 +1,22 @@
 from typing import List
 
-import route
 import routeutils
 from routecancidateinfolocator import RouteCandidateInfoLocator
 from routecandidateinfo import RouteCandidateInfo
+from pointxyz import PointXyz, PointXyzList
 
 
 class RouteAggregator:
     def __init__(self, tolerance_dist: float, tolerance_angle: float):
         self.__tolerance = tolerance_dist
         self.__codirection_angle_degrees = tolerance_angle
-        self.__routes: List[route.XyzRoute] = []
+        self.__routes: List[PointXyzList] = []
         self.__locator = RouteCandidateInfoLocator(self.__tolerance * 10)
 
     # doesn't aggregate co-directional routes and ignores points
-    def consume_route(self, rt: route.XyzRoute) -> None:
+    def consume_route(self, rt: PointXyzList) -> None:
         candidates: List[RouteCandidateInfo] = []
-        buffered_routes: List[route.XyzRoute] = []
+        buffered_routes: List[PointXyzList] = []
 
         prev_filtered: int = -1
 
@@ -42,17 +42,17 @@ class RouteAggregator:
             self.__add_route(r)
 
     @ property
-    def routes(self) -> List[route.XyzRoute]:
+    def routes(self) -> List[PointXyzList]:
         return self.__routes
 
-    def __get_closest_points(self, pt: route.RouteXyzPoint, tolerance: float) -> List[RouteCandidateInfo]:
+    def __get_closest_points(self, pt: PointXyz, tolerance: float) -> List[RouteCandidateInfo]:
         pts: List[RouteCandidateInfo] = []
         for info in self.__locator.get(pt, tolerance):
             pts.append(info)
 
         return pts
 
-    def __add_route(self, rt: route.XyzRoute) -> None:
+    def __add_route(self, rt: PointXyzList) -> None:
         if (len(rt) < 2):
             return
 

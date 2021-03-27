@@ -7,9 +7,10 @@ import route
 import routeutils
 import utils
 from xyminmax import XYMinMax
+from pointxyz import PointXyz, PointXyzList
 
 
-def get_mid_point_index(rt: route.XyzRoute, indexFrom: int, indexTo: int) -> Optional[int]:
+def get_mid_point_index(rt: PointXyzList, indexFrom: int, indexTo: int) -> Optional[int]:
     if indexFrom < 0 or indexFrom < 0 or indexTo >= len(rt) or indexFrom > indexTo:
         raise Exception("Wrong indices given to get_mid_point_index: " + str(len(rt)) + " " + str(indexFrom) + " " + str(indexTo))
 
@@ -38,7 +39,7 @@ def get_mid_point_index(rt: route.XyzRoute, indexFrom: int, indexTo: int) -> Opt
     return m
 
 
-def remove_close_points(rt: route.XyzRoute, dist_m: float) -> None:
+def remove_close_points(rt: PointXyzList, dist_m: float) -> None:
     if len(rt) <= 2:
         return rt
 
@@ -67,7 +68,7 @@ def remove_close_points(rt: route.XyzRoute, dist_m: float) -> None:
     utils.remove_all_none_from_list(rt)
 
 
-def get_length(rt: route.XyzRoute) -> float:
+def get_length(rt: PointXyzList) -> float:
     if len(rt) < 2:
         return 0
 
@@ -79,7 +80,7 @@ def get_length(rt: route.XyzRoute) -> float:
     return sm
 
 
-def split_by_time(rt: route.XyzRoute, split_ms: int) -> List[route.XyzRoute]:
+def split_by_time(rt: route.GpsRoute, split_ms: int) -> List[route.GpsRoute]:
     if len(rt) < 2:
         return [rt]
 
@@ -99,7 +100,7 @@ def split_by_time(rt: route.XyzRoute, split_ms: int) -> List[route.XyzRoute]:
     return res
 
 
-def get_routes_xy_min_max(rts: List[route.XyzRoute]) -> XYMinMax:
+def get_routes_xy_min_max(rts: List[PointXyzList]) -> XYMinMax:
     min_max = XYMinMax(100000000, 1000000000, -1000000000, -1000000000)
 
     for rt in rts:
@@ -109,7 +110,7 @@ def get_routes_xy_min_max(rts: List[route.XyzRoute]) -> XYMinMax:
     return min_max
 
 
-def advance_candidates(point: route.RouteXyzPoint, candidates: List[RouteCandidateInfo], routes: route.XyzRoute, tolerance: float) -> None:
+def advance_candidates(point: PointXyz, candidates: List[RouteCandidateInfo], routes: List[PointXyzList], tolerance: float) -> None:
     for candidate_id, candidate in enumerate(candidates):
         if candidate.route_id >= len(routes):
             raise Exception('Candidate route id is out of range')
@@ -120,7 +121,7 @@ def advance_candidates(point: route.RouteXyzPoint, candidates: List[RouteCandida
             raise Exception('Candidate point is out of range')
 
         pt_id = candidate.point_id
-        checked_point: route.XyzRoute = None
+        checked_point: PointXyz = None
         checked_point_id: int = 0
 
         while pt_id < len(rt) and pointutils.distance(point, rt[pt_id]) <= tolerance:
@@ -136,7 +137,7 @@ def advance_candidates(point: route.RouteXyzPoint, candidates: List[RouteCandida
     utils.remove_all_none_from_list(candidates)
 
 
-def remove_not_same_direction(point_prev: route.RouteXyzPoint, point_curr: route.RouteXyzPoint, candidates: List[RouteCandidateInfo], routes: route.XyzRoute, tolerance_degrees: float) -> None:
+def remove_not_same_direction(point_prev: PointXyz, point_curr: PointXyz, candidates: List[RouteCandidateInfo], routes: List[PointXyzList], tolerance_degrees: float) -> None:
     for candidate_id, candidate in enumerate(candidates):
         if candidate.route_id >= len(routes):
             raise Exception('Candidate route id is out of range')

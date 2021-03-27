@@ -25,32 +25,4 @@ class RouteGpsPoint:
         return self.__ts
 
 
-class RouteXyzPoint:
-    def __init__(self, ts: int, x: float, y: float, z: float):
-        self.__ts = ts
-        self.__x = x
-        self.__y = y
-        self.__z = z
-
-    def __eq__(self, other):
-        return self.__ts == other.__ts and self.__x == other.__x and self.__y == other.__y and self.__z == other.__z
-
-    @property
-    def x(self) -> float:
-        return self.__x
-
-    @property
-    def y(self) -> float:
-        return self.__y
-
-    @property
-    def z(self) -> float:
-        return self.__z
-
-    @property
-    def ts(self) -> float:
-        return self.__ts
-
-
 GpsRoute = List[RouteGpsPoint]
-XyzRoute = List[RouteXyzPoint]

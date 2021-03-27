@@ -4,9 +4,11 @@ import traceback
 import pointutils
 import routeutils
 import source
+import route
 
 from routeaggregator import RouteAggregator
 from gui.routesvisualizer import RoutesVisualizer
+from pointxyz import PointXyzList
 
 
 def main() -> None:
@@ -28,7 +30,13 @@ def main() -> None:
     else:
         raise Exception("Unexpected source type. Valid options are [db, aws]")
 
-    xyz_routes = [pointutils.gps_route_to_xyz_route(r) for r in routes.values()]
+    gps_routes: route.GpsRoute = []
+    tmp = [gps_routes.extend(routeutils.split_by_time(rt, 5000)) for rt in routes.values()]
+
+    xyz_routes: PointXyzList = []
+    tmp = [xyz_routes.append(pointutils.gps_route_to_xyz_route(rt)) for rt in gps_routes]
+
+    tmp.clear()
 
     xy_min_max = routeutils.get_routes_xy_min_max(xyz_routes)
 
@@ -36,19 +44,17 @@ def main() -> None:
     aggregator = RouteAggregator(tolerance_dist=10, tolerance_angle=15)
 
     for rt in xyz_routes:
+        initial_len = len(rt)
+
         routeutils.remove_close_points(rt, 10)
 
-        split_routes = routeutils.split_by_time(rt, 5000)
+        if routeutils.get_length(rt) < 100:
+            print("route skipped")
+            continue
 
-        for sub_route in split_routes:
-            if routeutils.get_length(sub_route) < 100:
-                print("route skipped")
-                continue
+        print(str(initial_len) + " " + str(len(rt)) + " " + str(routeutils.get_length(rt)))
 
-            print(str(len(rt)) + " " + str(len(sub_route)) + " " + str(routeutils.get_length(sub_route)))
-
-            # viewVisualizer.add_points(sub_route)
-            aggregator.consume_route(sub_route)
+        aggregator.consume_route(rt)
 
     for r in aggregator.routes:
         viewVisualizer.add_points(r)

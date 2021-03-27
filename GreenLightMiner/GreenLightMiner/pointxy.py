@@ -3,7 +3,10 @@ class PointXy:
         self.__x = x
         self.__y = y
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, PointXy):
+            return NotImplemented
+
         return self.__x == other.__x and self.__y == other.__y
 
     @property

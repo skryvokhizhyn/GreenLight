@@ -2,16 +2,16 @@ import math
 import unittest
 
 import pointutils
-import route
 from direction2d import Direction2d
+from pointxyz import PointXyz
 
 
 class PointUtilsTest(unittest.TestCase):
     def test_distance(self):
-        self.assertEqual(10, pointutils.distance(route.RouteXyzPoint(0, 0, 0, 0), route.RouteXyzPoint(0, 10, 0, 0)))
-        self.assertEqual(10, pointutils.distance(route.RouteXyzPoint(0, 0, 0, 0), route.RouteXyzPoint(0, 0, 10, 0)))
-        self.assertEqual(10, pointutils.distance(route.RouteXyzPoint(0, 0, 0, 0), route.RouteXyzPoint(0, 0, 0, 10)))
-        self.assertEqual(math.sqrt(300), pointutils.distance(route.RouteXyzPoint(0, 0, 0, 0), route.RouteXyzPoint(0, 10, 10, 10)))
+        self.assertEqual(10, pointutils.distance(PointXyz(0, 0, 0), PointXyz(10, 0, 0)))
+        self.assertEqual(10, pointutils.distance(PointXyz(0, 0, 0), PointXyz(0, 10, 0)))
+        self.assertEqual(10, pointutils.distance(PointXyz(0, 0, 0), PointXyz(0, 0, 10)))
+        self.assertEqual(math.sqrt(300), pointutils.distance(PointXyz(0, 0, 0), PointXyz(10, 10, 10)))
 
     def test_get_angle_between(self):
         self.assertRaises(Exception, pointutils.get_angle_between, None, None)
