@@ -53,7 +53,7 @@ class RouteAggregator:
         return pts
 
     def __add_route(self, rt: PointXyzList) -> None:
-        if (len(rt) < 2):
+        if (len(rt) < 10):
             return
 
         i = 0

@@ -5,6 +5,7 @@ from kivy.core.window import Window as AppWindow
 from kivy.graphics import Color, Point, Scale, Translate
 from kivy.input.motionevent import MotionEvent
 from kivy.uix.widget import Widget
+from kivy.core.window import Window
 from pointxyz import PointXyzList
 from xyminmax import XYMinMax
 
@@ -16,6 +17,9 @@ _VIEW_SCROLL_ADD = 0.1
 class _Window(Widget):
     def __init__(self, xy_bounds: XYMinMax, **kwargs):
         super(_Window, self).__init__(**kwargs)
+
+        Window.bind(on_key_down=self._on_key_pressed)
+
         self.__min_max = xy_bounds
         self.__zoom_scale = 1.0
         self.__shift_x = 0.0
@@ -36,6 +40,28 @@ class _Window(Widget):
 
         self.__rts.append(pts)
 
+    def _on_key_pressed(self, *args):
+        keycode = args[1]
+
+        if keycode == 275:  # right
+            self.__shift_x -= 5
+            self.draw_routes()
+        elif keycode == 276:  # left
+            self.__shift_x += 5
+            self.draw_routes()
+        elif keycode == 273:  # up
+            self.__shift_y -= 5
+            self.draw_routes()
+        elif keycode == 274:  # down
+            self.__shift_y += 5
+            self.draw_routes()
+        elif keycode == 270:  # +
+            self.__zoom_scale += _VIEW_SCROLL_ADD
+            self.draw_routes()
+        elif keycode == 269:  # -
+            self.__zoom_scale -= _VIEW_SCROLL_ADD
+            self.draw_routes()
+
     def draw_routes(self, *args) -> None:
         self.canvas.clear()
 
@@ -55,8 +81,8 @@ class _Window(Widget):
             Translate((_VIEW_WIDTH - _VIEW_WIDTH * self.__zoom_scale) / 2, (_VIEW_HEIGHT - _VIEW_HEIGHT * self.__zoom_scale) / 2, 0)
             Scale(self.__zoom_scale, self.__zoom_scale, 1)
             Translate(self.__shift_x / self.__zoom_scale, self.__shift_y / self.__zoom_scale, 0)
-            for pts in self.__rts:
 
+            for pts in self.__rts:
                 color = colors[color_id]
                 color_id += 1
                 if color_id == len(colors):

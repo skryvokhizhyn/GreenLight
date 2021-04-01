@@ -1,14 +1,14 @@
 import sys
 import traceback
+from typing import List
 
 import pointutils
+import route
 import routeutils
 import source
-import route
-
-from routeaggregator import RouteAggregator
 from gui.routesvisualizer import RoutesVisualizer
 from pointxyz import PointXyzList
+from routeaggregator import RouteAggregator
 
 
 def main() -> None:
@@ -40,8 +40,7 @@ def main() -> None:
 
     xy_min_max = routeutils.get_routes_xy_min_max(xyz_routes)
 
-    viewVisualizer = RoutesVisualizer(xy_min_max)
-    aggregator = RouteAggregator(tolerance_dist=10, tolerance_angle=15)
+    preprocessed_routes: List[PointXyzList] = []
 
     for rt in xyz_routes:
         initial_len = len(rt)
@@ -54,7 +53,15 @@ def main() -> None:
 
         print(str(initial_len) + " " + str(len(rt)) + " " + str(routeutils.get_length(rt)))
 
-        aggregator.consume_route(rt)
+        preprocessed_routes.append(rt)
+
+    preprocessed_routes.sort(key=lambda r: len(r), reverse=True)
+
+    viewVisualizer = RoutesVisualizer(xy_min_max)
+    aggregator = RouteAggregator(tolerance_dist=10, tolerance_angle=15)
+
+    for r in preprocessed_routes:
+        aggregator.consume_route(r)
 
     for r in aggregator.routes:
         viewVisualizer.add_points(r)
