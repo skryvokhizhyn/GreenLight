@@ -28,8 +28,8 @@ def get_routes_from_db(db_path: str) -> Dict[str, route.GpsRoute]:
     return __get_routes(cur.fetchall())
 
 
-def __parse_aws_items(items) -> Dict[str, List[str]]:
-    routes: Dict[str, List[str]] = {}
+def __parse_aws_items(items) -> Dict[str, route.GpsRoute]:
+    routes: Dict[str, route.GpsRoute] = {}
 
     for item in items:
         payload = json.loads(item['payload'])

@@ -1,14 +1,16 @@
 import sys
 import traceback
-from typing import List
+from typing import Dict, List
 
 import pointutils
+import pointxyz
 import route
 import routeutils
 import source
 from gui.routesvisualizer import RoutesVisualizer
 from pointxyz import PointXyzList
 from routeaggregator import RouteAggregator
+from routeutils import split_by_time
 
 
 def main() -> None:
@@ -18,7 +20,7 @@ def main() -> None:
     if sys.argv[1] != "-t":
         raise Exception("The only expected parameter is '-t'")
 
-    routes = {}
+    routes: Dict[str, route.GpsRoute] = {}
 
     if sys.argv[2] == "db":
         if (len(sys.argv) < 4):
@@ -30,41 +32,40 @@ def main() -> None:
     else:
         raise Exception("Unexpected source type. Valid options are [db, aws]")
 
-    gps_routes: route.GpsRoute = []
-    tmp = [gps_routes.extend(routeutils.split_by_time(rt, 5000)) for rt in routes.values()]
+    gps_routes: List[route.GpsRoute] = []
+    for rt in list(routes.values()):
+        for r in routeutils.split_by_time(rt, 5000):
+            gps_routes.append(r)
 
-    xyz_routes: PointXyzList = []
-    tmp = [xyz_routes.append(pointutils.gps_route_to_xyz_route(rt)) for rt in gps_routes]
-
-    tmp.clear()
-
-    xy_min_max = routeutils.get_routes_xy_min_max(xyz_routes)
+    xyz_routes: List[PointXyzList] = []
+    for rt in gps_routes:
+        xyz_routes.append(pointutils.gps_route_to_xyz_route(rt))
 
     preprocessed_routes: List[PointXyzList] = []
+    for rr in xyz_routes:
+        initial_len = len(rr)
+        routeutils.remove_close_points(rr, 10)
 
-    for rt in xyz_routes:
-        initial_len = len(rt)
-
-        routeutils.remove_close_points(rt, 10)
-
-        if routeutils.get_length(rt) < 100:
+        if routeutils.get_length(rr) < 100:
             print("route skipped")
             continue
 
-        print(str(initial_len) + " " + str(len(rt)) + " " + str(routeutils.get_length(rt)))
+        print(str(initial_len) + " " + str(len(rr)) + " " + str(routeutils.get_length(rr)))
 
-        preprocessed_routes.append(rt)
+        preprocessed_routes.append(rr)
 
     preprocessed_routes.sort(key=lambda r: len(r), reverse=True)
+
+    xy_min_max = routeutils.get_routes_xy_min_max(xyz_routes)
 
     viewVisualizer = RoutesVisualizer(xy_min_max)
     aggregator = RouteAggregator(tolerance_dist=10, tolerance_angle=15)
 
-    for r in preprocessed_routes:
-        aggregator.consume_route(r)
+    for r1 in preprocessed_routes:
+        aggregator.consume_route(r1)
 
-    for r in aggregator.routes:
-        viewVisualizer.add_points(r)
+    for r2 in aggregator.routes:
+        viewVisualizer.add_points(r2)
 
     viewVisualizer.run()
 
