@@ -64,6 +64,8 @@ def main() -> None:
     for r1 in preprocessed_routes:
         aggregator.consume_route(r1)
 
+    res = aggregator.extend_routes()
+
     for r2 in aggregator.routes:
         viewVisualizer.add_points(r2)
 

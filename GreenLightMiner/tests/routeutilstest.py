@@ -180,24 +180,24 @@ class RouteUtilsTest_split_by_time(unittest.TestCase):
         self.assertEqual(1, len(routeutils.split_by_time([PointXyz(0, 0, 0)], 5)))
 
     def test_all_in_one_chunk(self):
-        rt = [PointXyz(0, 0, 0), route.RoutGpsPoint(1, 0, 0, 0), route.RoutGpsPoint(2, 0, 0, 0), route.RoutGpsPoint(3, 0, 0, 0)]
+        rt = [route.RouteGpsPoint(0, 0, 0, 0), route.RouteGpsPoint(1, 0, 0, 0), route.RouteGpsPoint(2, 0, 0, 0), route.RouteGpsPoint(3, 0, 0, 0)]
         res = routeutils.split_by_time(rt, 10)
 
         self.assertEqual(1, len(res))
         self.assertEqual(4, len(res[0]))
 
     def test_multiple(self):
-        rt = [PointXyz(0, 0, 0), route.RoutGpsPoint(10, 0, 0, 0), route.RoutGpsPoint(11, 0, 0, 0), route.RoutGpsPoint(20, 0, 0, 0)]
+        rt = [route.RouteGpsPoint(0, 0, 0, 0), route.RouteGpsPoint(10, 0, 0, 0), route.RouteGpsPoint(11, 0, 0, 0), route.RouteGpsPoint(20, 0, 0, 0)]
         res = routeutils.split_by_time(rt, 5)
 
         self.assertEqual(3, len(res))
         self.assertEqual(1, len(res[0]))
-        self.assertEqual(PointXyz(0, 0, 0), res[0][0])
+        self.assertEqual(route.RouteGpsPoint(0, 0, 0, 0), res[0][0])
         self.assertEqual(2, len(res[1]))
-        self.assertEqual(route.RoutGpsPoint(10, 0, 0, 0), res[1][0])
-        self.assertEqual(route.RoutGpsPoint(11, 0, 0, 0), res[1][1])
+        self.assertEqual(route.RouteGpsPoint(10, 0, 0, 0), res[1][0])
+        self.assertEqual(route.RouteGpsPoint(11, 0, 0, 0), res[1][1])
         self.assertEqual(1, len(res[2]))
-        self.assertEqual(route.RoutGpsPoint(20, 0, 0, 0), res[2][0])
+        self.assertEqual(route.RouteGpsPoint(20, 0, 0, 0), res[2][0])
 
 
 class RouteUtilsTest_advance_candidates(unittest.TestCase):

@@ -10,6 +10,12 @@ class UtilsTest_remove_all_none_from_list(unittest.TestCase):
         utils.remove_all_none_from_list(rt)
         self.assertEqual(0, len(rt))
 
+    def test_one(self):
+        rt = [1]
+
+        utils.remove_all_none_from_list(rt)
+        self.assertEquals([1], rt)
+
     def test_no_none(self):
         rt = [1, 2, "sdf"]
 

@@ -1,15 +1,17 @@
-from typing import List
+from typing import List, Dict
 
 import routeutils
+import utils
 from routecancidateinfolocator import RouteCandidateInfoLocator
 from routecandidateinfo import RouteCandidateInfo
 from pointxyz import PointXyz, PointXyzList
 
 
 class RouteAggregator:
-    def __init__(self, tolerance_dist: float, tolerance_angle: float):
+    def __init__(self, tolerance_dist: float, tolerance_angle: float, min_allowed_points_count: int = 10):
         self.__tolerance = tolerance_dist
         self.__codirection_angle_degrees = tolerance_angle
+        self.__min_allowed_points_count = min_allowed_points_count
         self.__routes: List[PointXyzList] = []
         self.__locator = RouteCandidateInfoLocator(self.__tolerance * 10)
 
@@ -30,13 +32,23 @@ class RouteAggregator:
                     routeutils.remove_not_same_direction(rt[i - 1], rt[i], candidates, self.__routes, self.__codirection_angle_degrees)
 
             if len(candidates) > 0:
-                if i - prev_filtered > 1:
-                    buffered_routes.append(rt[prev_filtered + 1:i])
+                p1: int = prev_filtered
+
+                if p1 == -1:
+                    p1 = 0
+
+                if i - p1 > 1:
+                    buffered_routes.append(rt[p1:i+1])
 
                 prev_filtered = i
 
         if len(rt) - prev_filtered > 1:
-            buffered_routes.append(rt[prev_filtered + 1:len(rt)])
+            p2: int = prev_filtered
+
+            if p2 == -1:
+                p2 = 0
+
+            buffered_routes.append(rt[p2:len(rt)])
 
         for r in buffered_routes:
             self.__add_route(r)
@@ -44,6 +56,42 @@ class RouteAggregator:
     @ property
     def routes(self) -> List[PointXyzList]:
         return self.__routes
+
+    def extend_routes(self) -> None:
+        tails: Dict[int, List[int]] = {}
+
+        for r_id, r in enumerate(self.__routes):
+            candidates = self.__get_closest_points(r[-1], self.__tolerance)
+
+            for c in candidates:
+                if r_id == c.route_id:
+                    continue
+
+                if c.point_id == 0:
+                    tails.setdefault(r_id, []).append(c.route_id)
+
+        rts: Dict[int, List[int]] = {}
+        for k1, v1 in tails.items():
+            if len(v1) == 1:
+                rts[k1] = v1
+
+        some_updated: bool = True
+        while some_updated:
+            some_updated = False
+            for frm, to in list(rts.items()):
+                to_rt = rts.get(to[-1], None)
+                if not to_rt is None:
+                    tail_to_remove = to[-1]
+                    rts[frm].extend(to_rt)
+                    del rts[tail_to_remove]
+                    some_updated = True
+
+        for k2, v2 in rts.items():
+            for rp in v2:
+                self.__routes[k2].extend(self.__routes[rp])
+                self.__routes[rp] = None  # type: ignore
+
+        utils.remove_all_none_from_list(self.__routes)
 
     def __get_closest_points(self, pt: PointXyz, tolerance: float) -> List[RouteCandidateInfo]:
         pts: List[RouteCandidateInfo] = []
@@ -53,7 +101,7 @@ class RouteAggregator:
         return pts
 
     def __add_route(self, rt: PointXyzList) -> None:
-        if (len(rt) < 10):
+        if (len(rt) < self.__min_allowed_points_count):
             return
 
         i = 0
