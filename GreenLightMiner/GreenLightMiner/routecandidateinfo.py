@@ -1,3 +1,10 @@
-from collections import namedtuple
+from typing import NamedTuple, List
+from pointxyz import PointXyz
 
-RouteCandidateInfo = namedtuple('RouteCandidateInfo', 'point point_id route_id')
+
+class RouteCandidateInfo(NamedTuple):
+    point: PointXyz
+    point_id: int
+    route_id: int
+
+RouteCandidateInfos = List[RouteCandidateInfo]

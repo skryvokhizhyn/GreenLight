@@ -14,3 +14,9 @@ class RouteCandidateInfoLocatorTest(unittest.TestCase):
         self.assertEqual(PointXyz(12, 12, 0), res[0].point)
         self.assertEqual(1, res[0].point_id)
         self.assertEqual(1, res[0].route_id)
+
+    def test_get_from_emtpy(self):
+        locator = RouteCandidateInfoLocator(100)
+
+        res = locator.get(PointXyz(13, 12, 0), 1)
+        self.assertEqual(0, len(res))

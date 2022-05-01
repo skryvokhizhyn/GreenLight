@@ -4,8 +4,10 @@ from typing import Dict, List
 
 import pointutils
 from pointgps import PointGps, GpsRoute, GpsRoutes
+from routeextender import RouteExtender
 import routeutils
 import source
+import routeextender
 from gui.routesvisualizer import RoutesVisualizer
 from pointxyz import PointXyz, XyzRoute, XyzRoutes
 from routeaggregator import RouteAggregator
@@ -61,11 +63,13 @@ def main() -> None:
 
     aggregated_routes: XyzRoutes = aggregator.aggregate_routes(preprocessed_routes)
 
-    #aggregator.extend_routes()
+    route_extender: RouteExtender = RouteExtender(tolerance_dist=10)
+    
+    extended_routes: XyzRoutes = route_extender.extend(aggregated_routes)
 
     viewVisualizer = RoutesVisualizer(xy_min_max)
 
-    for r2 in aggregated_routes:
+    for r2 in extended_routes:
         viewVisualizer.add_points(r2)
 
     viewVisualizer.run()

@@ -59,10 +59,6 @@ class RouteAggregator:
         for r in buffered_routes:
             self.__add_route(r)
 
-    #@property
-    #def routes(self) -> List[PointXyzList]:
-    #    return self.__routes
-
     def extend_routes(self) -> None:
         tails: Dict[int, List[int]] = {}
 

@@ -54,3 +54,33 @@ class UtilsTest_remove_all_none_from_list(unittest.TestCase):
 
         utils.remove_all_none_from_list(rt)
         self.assertEqual(1, len(rt))
+
+class UtilsTest_connect_ranges(unittest.TestCase):
+    def test_empty(self):
+        self.assertEqual(0, len(utils.connect_ranges([])))
+
+    def test_not_connected(self):
+        ranges = [(0, 1), (2 ,3)]
+
+        connected = utils.connect_ranges(ranges)
+
+        self.assertEqual(2, len(connected))
+        self.assertEqual((0, [1]), connected[0])
+        self.assertEqual((2, [3]), connected[1])
+
+    def test_connected(self):
+        ranges = [(0, 1), (1 ,2)]
+
+        connected = utils.connect_ranges(ranges)
+
+        self.assertEqual(1, len(connected))
+        self.assertEqual((0, [1, 2]), connected[0])
+
+    def test_mixed(self):
+        ranges = [(0, 1), (1 ,2), (4, 5), (3, 4), (5, 6)]
+
+        connected = utils.connect_ranges(ranges)
+
+        self.assertEqual(2, len(connected))
+        self.assertEqual((0, [1, 2]), connected[0])
+        self.assertEqual((3, [4, 5, 6]), connected[1])

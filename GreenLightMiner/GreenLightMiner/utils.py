@@ -1,4 +1,4 @@
-from typing import List
+from typing import Dict, List, Tuple
 
 
 def remove_all_none_from_list(rt: List) -> None:
@@ -32,3 +32,24 @@ def remove_all_none_from_list(rt: List) -> None:
 
     if first_non_None > 0:
         del rt[:first_non_None]
+
+def connect_ranges(ranges: List[Tuple[int, int]]) -> List[Tuple[int, List[int]]]:
+    starts: Dict[int, List[int]] = {}
+
+    for range in ranges:
+        starts[range[0]] = [range[1]]
+
+    has_updates: bool = True
+    while has_updates:
+        has_updates = False
+        for (_, chain) in starts.items():
+            if chain is None:
+                continue
+
+            last_in_chain = chain[-1]
+            if last_in_chain in starts:
+                chain.extend(starts[last_in_chain])
+                starts[last_in_chain] = None
+                has_updates = True
+
+    return [(range[0], range[1]) for range in starts.items() if range[1] is not None]

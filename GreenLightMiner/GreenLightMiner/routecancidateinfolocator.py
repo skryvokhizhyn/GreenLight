@@ -4,7 +4,7 @@ import pointutils
 from gridmap2d import GridMap2d
 from pointxy import PointXy
 from pointxyz import PointXyz
-from routecandidateinfo import RouteCandidateInfo
+from routecandidateinfo import RouteCandidateInfo, RouteCandidateInfos
 
 
 class RouteCandidateInfoLocator:
@@ -14,7 +14,7 @@ class RouteCandidateInfoLocator:
     def put(self, info: RouteCandidateInfo) -> None:
         self.__grid.put(PointXy(info.point.x, info.point.y), info)
 
-    def get(self, p: PointXyz, dist: float) -> List[RouteCandidateInfo]:
+    def get(self, p: PointXyz, dist: float) -> RouteCandidateInfos:
         res = self.__grid.get(PointXy(p.x, p.y), dist)
 
         return [i for i in res if pointutils.distance(i.point, p) <= dist]
