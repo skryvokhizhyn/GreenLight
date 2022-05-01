@@ -7,4 +7,5 @@ class PointXyz(NamedTuple):
     z: float
 
 
-PointXyzList = List[PointXyz]
+XyzRoute = List[PointXyz]
+XyzRoutes = List[XyzRoute]

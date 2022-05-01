@@ -4,21 +4,21 @@ from typing import Dict, List, Any
 
 import boto3
 
-import route
+from pointgps import PointGps, GpsRoute
 
 
-def __get_routes(rows: Any) -> Dict[str, route.GpsRoute]:
-    routes: Dict[str, route.GpsRoute] = {}
+def __get_routes(rows: Any) -> Dict[str, GpsRoute]:
+    routes: Dict[str, GpsRoute] = {}
 
     for row in rows:
         if len(row) > 0:
             routes.setdefault(row[5], []).append(
-                route.RouteGpsPoint(row[0], row[1], row[2], row[3]))
+                PointGps(row[0], row[1], row[2], row[3]))
 
     return routes
 
 
-def get_routes_from_db(db_path: str) -> Dict[str, route.GpsRoute]:
+def get_routes_from_db(db_path: str) -> Dict[str, GpsRoute]:
     conn = sqlite3.connect(db_path)
 
     cur = conn.cursor()
@@ -28,8 +28,8 @@ def get_routes_from_db(db_path: str) -> Dict[str, route.GpsRoute]:
     return __get_routes(cur.fetchall())
 
 
-def __parse_aws_items(items) -> Dict[str, route.GpsRoute]:
-    routes: Dict[str, route.GpsRoute] = {}
+def __parse_aws_items(items) -> Dict[str, GpsRoute]:
+    routes: Dict[str, GpsRoute] = {}
 
     for item in items:
         payload = json.loads(item['payload'])
@@ -43,13 +43,13 @@ def __parse_aws_items(items) -> Dict[str, route.GpsRoute]:
         data = payload['data']
 
         for d in json.loads(data):
-            routes.setdefault(route_id, []).append(route.RouteGpsPoint(
+            routes.setdefault(route_id, []).append(PointGps(
                 d['Longitude'], d['Latitude'], d['Altitude'], d['Speed']))
 
     return routes
 
 
-def get_routes_from_aws() -> Dict[str, route.GpsRoute]:
+def get_routes_from_aws() -> Dict[str, GpsRoute]:
 
     client = boto3.client("dynamodb")
     table_names = client.list_tables(Limit=20)
@@ -76,7 +76,7 @@ def get_routes_from_aws() -> Dict[str, route.GpsRoute]:
     done = False
     start_key = None
 
-    res: Dict[str, route.GpsRoute] = {}
+    res: Dict[str, GpsRoute] = {}
 
     while not done:
         if start_key:

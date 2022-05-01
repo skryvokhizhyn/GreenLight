@@ -1,7 +1,7 @@
 from typing import List
 
 
-class RouteGpsPoint:
+class PointGps:
     def __init__(self, ts: int, lng: float, lat: float, alt: float):
         self.__ts = ts
         self.__lng = lng
@@ -25,10 +25,11 @@ class RouteGpsPoint:
         return self.__ts
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, RouteGpsPoint):
+        if not isinstance(other, PointGps):
             return NotImplemented
 
         return self.__ts == other.__ts and self.__lng == other.__lng and self.__lat == other.__lat and self.__alt == other.__alt
 
 
-GpsRoute = List[RouteGpsPoint]
+GpsRoute = List[PointGps]
+GpsRoutes = List[GpsRoute]

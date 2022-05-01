@@ -2,15 +2,14 @@ from typing import List
 
 from kivy.app import App
 from kivy.core.window import Window as AppWindow
-from kivy.graphics import Color, Point, Scale, Translate
+from kivy.graphics import Color, Point, Scale, Translate, Rectangle
 from kivy.input.motionevent import MotionEvent
 from kivy.uix.widget import Widget
+from kivy.uix.floatlayout import FloatLayout
 from kivy.core.window import Window
-from pointxyz import PointXyzList
+from pointxyz import XyzRoute, XyzRoutes, PointXyz
 from xyminmax import XYMinMax
 
-_VIEW_WIDTH = 1200
-_VIEW_HEIGHT = 1200
 _VIEW_SCROLL_ADD = 0.1
 
 
@@ -25,15 +24,19 @@ class _Window(Widget):
         self.__shift_x = 0.0
         self.__shift_y = 0.0
 
-        self.__rts: List[PointXyzList] = []
+        self.__rts: XyzRoutes = []
 
-    def add_points(self, rt: PointXyzList) -> None:
+        self.__points = []
+
+        #self.size = (_WINDOW_WIDTH, _WINDOW_HEIGHT)
+
+    def add_points(self, rt: XyzRoute) -> None:
         x_diff = self.__min_max.x_max - self.__min_max.x_min
         y_diff = self.__min_max.y_max - self.__min_max.y_min
 
-        scale = _VIEW_WIDTH / x_diff if (x_diff > y_diff) else _VIEW_HEIGHT / y_diff
+        scale = self.width / x_diff if (x_diff / self.width > y_diff / self.height) else self.height / y_diff
 
-        pts: PointXyzList = []
+        pts: XyzRoute = []
         for p in rt:
             pts.append((p.x - self.__min_max.x_min) * scale)
             pts.append((p.y - self.__min_max.y_min) * scale)
@@ -78,7 +81,7 @@ class _Window(Widget):
         color_id = 0
 
         with self.canvas:
-            Translate((_VIEW_WIDTH - _VIEW_WIDTH * self.__zoom_scale) / 2, (_VIEW_HEIGHT - _VIEW_HEIGHT * self.__zoom_scale) / 2, 0)
+            Translate((self.width - self.width * self.__zoom_scale) / 2, (self.height - self.height * self.__zoom_scale) / 2, 0)
             Scale(self.__zoom_scale, self.__zoom_scale, 1)
             Translate(self.__shift_x / self.__zoom_scale, self.__shift_y / self.__zoom_scale, 0)
 
@@ -90,7 +93,7 @@ class _Window(Widget):
 
                 Color(color[0], color[1], color[2])
 
-                Point(pointsize=0.5 / self.__zoom_scale, points=pts)
+                self.__points.append(Point(pointsize=0.5 / self.__zoom_scale, points=pts))
 
     def on_touch_down(self, evt: MotionEvent) -> None:
         if evt.is_mouse_scrolling:
@@ -114,11 +117,14 @@ class _Window(Widget):
 
 class RoutesVisualizer(App):
     def __init__(self, xy_bounds: XYMinMax):
-        AppWindow.size = (_VIEW_WIDTH, _VIEW_HEIGHT)
         App.__init__(self)
+        __WINDOW_WIDTH = 800
+        __WINDOW_HEIGHT = 600
+        Window.size = (__WINDOW_WIDTH, __WINDOW_HEIGHT)
         self.__window = _Window(xy_bounds)
+        self.__window.size = (__WINDOW_WIDTH, __WINDOW_HEIGHT)
 
-    def add_points(self, rt: PointXyzList) -> None:
+    def add_points(self, rt: XyzRoute) -> None:
         self.__window.add_points(rt)
 
     def build(self):

@@ -4,7 +4,7 @@ import routeutils
 import utils
 from routecancidateinfolocator import RouteCandidateInfoLocator
 from routecandidateinfo import RouteCandidateInfo
-from pointxyz import PointXyz, PointXyzList
+from pointxyz import PointXyz, XyzRoute, XyzRoutes
 
 
 class RouteAggregator:
@@ -12,13 +12,19 @@ class RouteAggregator:
         self.__tolerance = tolerance_dist
         self.__codirection_angle_degrees = tolerance_angle
         self.__min_allowed_points_count = min_allowed_points_count
-        self.__routes: List[PointXyzList] = []
+        self.__routes: XyzRoutes = []
         self.__locator = RouteCandidateInfoLocator(self.__tolerance * 10)
 
+    def aggregate_routes(self, rts: XyzRoutes) -> XyzRoutes:
+        for rt in rts:
+            self.__consume_route(rt)
+        
+        return self.__routes
+
     # doesn't aggregate co-directional routes and ignores points
-    def consume_route(self, rt: PointXyzList) -> None:
+    def __consume_route(self, rt: XyzRoute) -> None:
         candidates: List[RouteCandidateInfo] = []
-        buffered_routes: List[PointXyzList] = []
+        buffered_routes: XyzRoutes= []
 
         prev_filtered: int = -1
 
@@ -53,9 +59,9 @@ class RouteAggregator:
         for r in buffered_routes:
             self.__add_route(r)
 
-    @ property
-    def routes(self) -> List[PointXyzList]:
-        return self.__routes
+    #@property
+    #def routes(self) -> List[PointXyzList]:
+    #    return self.__routes
 
     def extend_routes(self) -> None:
         tails: Dict[int, List[int]] = {}
@@ -100,7 +106,7 @@ class RouteAggregator:
 
         return pts
 
-    def __add_route(self, rt: PointXyzList) -> None:
+    def __add_route(self, rt: XyzRoute) -> None:
         if (len(rt) < self.__min_allowed_points_count):
             return
 

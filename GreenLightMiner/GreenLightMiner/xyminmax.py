@@ -1,4 +1,7 @@
-from collections import namedtuple
+from typing import NamedTuple, List
 
-
-XYMinMax = namedtuple('XYMinMax', 'x_min y_min x_max y_max')
+class XYMinMax(NamedTuple):
+    x_min: float
+    y_min: float
+    x_max: float
+    y_max: float

@@ -1,13 +1,13 @@
 import math
 
-from route import GpsRoute, RouteGpsPoint
+from pointgps import PointGps, GpsRoute
 from direction2d import Direction2d
-from pointxyz import PointXyz, PointXyzList
+from pointxyz import PointXyz, XyzRoute
 
 __EARTH_RADIUS_METERS = 6378100.0
 
 
-def __gps_point_to_xyz_point(gps_point: RouteGpsPoint) -> PointXyz:
+def __gps_point_to_xyz_point(gps_point: PointGps) -> PointXyz:
     latRad = (gps_point.lat * math.pi) / 180.0
     lonRad = (gps_point.lng * math.pi) / 180.0
 
@@ -21,7 +21,7 @@ def __gps_point_to_xyz_point(gps_point: RouteGpsPoint) -> PointXyz:
     )
 
 
-def gps_route_to_xyz_route(gps_route: GpsRoute) -> PointXyzList:
+def gps_route_to_xyz_route(gps_route: GpsRoute) -> XyzRoute:
     return [__gps_point_to_xyz_point(p) for p in gps_route]
 
 
