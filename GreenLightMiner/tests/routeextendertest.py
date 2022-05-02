@@ -50,6 +50,18 @@ class RouteextenderTest_extend(unittest.TestCase):
         self.assertEquals([PointXyz(0, 0, 0), PointXyz(1, 0, 0), PointXyz(2, 0, 0), PointXyz(3, 0, 0), PointXyz(4, 0, 0),
                            PointXyz(5, 0, 0), PointXyz(6, 0, 0), PointXyz(7, 0, 0), PointXyz(8, 0, 0)], result[0])
 
+    def test_separate_rote_is_preserved(self):
+        routes: XyzRoutes = [
+            [PointXyz(16, 0, 0), PointXyz(17, 0, 0), PointXyz(18, 0, 0)], 
+            [PointXyz(0, 0, 0), PointXyz(1, 0, 0), PointXyz(2, 0, 0)], 
+            [PointXyz(3, 0, 0), PointXyz(4, 0, 0), PointXyz(5, 0, 0)]]
+        extender = RouteExtender(1)
+        result = extender.extend(routes)
+        self.assertEqual(2, len(result))
+        self.assertEquals([PointXyz(0, 0, 0), PointXyz(1, 0, 0), PointXyz(2, 0, 0), PointXyz(3, 0, 0), PointXyz(4, 0, 0),
+                           PointXyz(5, 0, 0)], result[0])
+        self.assertEquals([PointXyz(16, 0, 0), PointXyz(17, 0, 0), PointXyz(18, 0, 0)], result[1])                 
+
     # def test_joins_in_middle_from(self):
     #     extender = RouteExtender(1, 1, 2)
     #     extender.consume_route([PointXyz(0, 0, 0), PointXyz(1, 0, 0), PointXyz(2, 0, 0), PointXyz(3, 0, 0), PointXyz(4, 0, 0), PointXyz(5, 0, 0)])

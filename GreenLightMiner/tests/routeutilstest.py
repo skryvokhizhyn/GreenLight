@@ -5,6 +5,7 @@ from GreenLightMiner.routecandidateinfo import RouteCandidateInfo
 from GreenLightMiner.pointxyz import PointXyz, XyzRoute
 from GreenLightMiner.pointgps import PointGps
 
+import pointutils
 
 class RouteUtilsTest_remove_close_points(unittest.TestCase):
     def test_empty(self):
@@ -120,6 +121,13 @@ class RouteUtilsTest_remove_close_points(unittest.TestCase):
 
         self.assertEqual(1, len(rt))
         self.assertEqual(PointXyz(20, 0, 0), rt[0])
+
+    def test_prod_bug_with_same_points_returned(self):
+        rt = [PointXyz(3, 0, 0), PointXyz(4, 0, 0), PointXyz(4, 0, 0), PointXyz(5, 0 ,0)]
+
+        routeutils.remove_close_points(rt, 0.5)
+
+        self.assertEqual([PointXyz(3, 0, 0), PointXyz(4, 0, 0), PointXyz(5, 0 ,0)], rt)
 
 
 class RouteUtilsTest_get_mid_point_index(unittest.TestCase):

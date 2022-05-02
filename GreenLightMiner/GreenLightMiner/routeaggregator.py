@@ -59,42 +59,6 @@ class RouteAggregator:
         for r in buffered_routes:
             self.__add_route(r)
 
-    def extend_routes(self) -> None:
-        tails: Dict[int, List[int]] = {}
-
-        for r_id, r in enumerate(self.__routes):
-            candidates = self.__get_closest_points(r[-1], self.__tolerance)
-
-            for c in candidates:
-                if r_id == c.route_id:
-                    continue
-
-                if c.point_id == 0:
-                    tails.setdefault(r_id, []).append(c.route_id)
-
-        rts: Dict[int, List[int]] = {}
-        for k1, v1 in tails.items():
-            if len(v1) == 1:
-                rts[k1] = v1
-
-        some_updated: bool = True
-        while some_updated:
-            some_updated = False
-            for frm, to in list(rts.items()):
-                to_rt = rts.get(to[-1], None)
-                if not to_rt is None:
-                    tail_to_remove = to[-1]
-                    rts[frm].extend(to_rt)
-                    del rts[tail_to_remove]
-                    some_updated = True
-
-        for k2, v2 in rts.items():
-            for rp in v2:
-                self.__routes[k2].extend(self.__routes[rp])
-                self.__routes[rp] = None  # type: ignore
-
-        utils.remove_all_none_from_list(self.__routes)
-
     def __get_closest_points(self, pt: PointXyz, tolerance: float) -> List[RouteCandidateInfo]:
         pts: List[RouteCandidateInfo] = []
         for info in self.__locator.get(pt, tolerance):

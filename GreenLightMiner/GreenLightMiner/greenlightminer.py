@@ -44,17 +44,9 @@ def main() -> None:
 
     preprocessed_routes: XyzRoutes = []
     for rr in xyz_routes:
-        initial_len = len(rr)
-        routeutils.remove_close_points(rr, 10)
+        routeutils.remove_close_points(rr, 5)
 
-        if routeutils.get_length(rr) < 100:
-            print("route skipped")
-            continue
-
-        print(str(initial_len) + " " + str(len(rr)) + " " + str(routeutils.get_length(rr)))
-
-        preprocessed_routes.append(rr)
-
+    preprocessed_routes = [r for r in xyz_routes if routeutils.get_length(r) >= 500]
     preprocessed_routes.sort(key=lambda r: len(r), reverse=True)
 
     xy_min_max = routeutils.get_routes_xy_min_max(xyz_routes)
@@ -62,6 +54,8 @@ def main() -> None:
     aggregator = RouteAggregator(tolerance_dist=10, tolerance_angle=15)
 
     aggregated_routes: XyzRoutes = aggregator.aggregate_routes(preprocessed_routes)
+
+    aggregated_routes = [r for r in aggregated_routes if routeutils.get_length(r) >= 500]
 
     route_extender: RouteExtender = RouteExtender(tolerance_dist=10)
     
