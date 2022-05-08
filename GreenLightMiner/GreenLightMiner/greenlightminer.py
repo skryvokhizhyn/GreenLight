@@ -1,18 +1,15 @@
 import sys
 import traceback
-from typing import Dict
 
 import pointutils
-from pointgps import PointGps, GpsRoute, GpsRoutes
+from pointgps import GpsRoutes
 from routecrossroadsplitter import RouteCrossroadSplitter
 from routeextender import RouteExtender
 import routeutils
 import source
-import routeextender
 from gui.routesvisualizer import RoutesVisualizer
-from pointxyz import PointXyz, XyzRoute, XyzRoutes
+from pointxyz import XyzRoutes
 from routeaggregator import RouteAggregator
-from routeutils import split_by_time
 
 
 def main() -> None:
@@ -22,20 +19,11 @@ def main() -> None:
     if sys.argv[1] != "-t":
         raise Exception("The only expected parameter is '-t'")
 
-    routes: Dict[str, GpsRoute] = {}
-
-    if sys.argv[2] == "db":
-        if (len(sys.argv) < 4):
-            raise Exception("no path to DB specified")
-
-        routes = source.get_routes_from_db(sys.argv[3])
-    elif sys.argv[2] == "aws":
-        routes = source.get_routes_from_aws()
-    else:
-        raise Exception("Unexpected source type. Valid options are [db, aws]")
+    loader = source.get_source(sys.argv)
+    routes: GpsRoutes = loader.load()
 
     gps_routes: GpsRoutes = []
-    for rt in list(routes.values()):
+    for rt in list(routes):
         for r in routeutils.split_by_time(rt, 5000):
             gps_routes.append(r)
 
