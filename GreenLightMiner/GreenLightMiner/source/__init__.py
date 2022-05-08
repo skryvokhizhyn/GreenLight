@@ -2,8 +2,6 @@ from source.sourceaws import SourceAws
 from source.sourcedb import SourceDb
 
 def get_source(argv):
-    return SourceAws()
-
     if argv[2] == "db":
         if (len(argv) < 4):
             raise Exception("no path to DB specified")
