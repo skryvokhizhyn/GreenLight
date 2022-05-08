@@ -1,9 +1,10 @@
 import sys
 import traceback
-from typing import Dict, List
+from typing import Dict
 
 import pointutils
 from pointgps import PointGps, GpsRoute, GpsRoutes
+from routecrossroadsplitter import RouteCrossroadSplitter
 from routeextender import RouteExtender
 import routeutils
 import source
@@ -51,19 +52,13 @@ def main() -> None:
 
     xy_min_max = routeutils.get_routes_xy_min_max(xyz_routes)
 
-    aggregator = RouteAggregator(tolerance_dist=10, tolerance_angle=15)
-
-    aggregated_routes: XyzRoutes = aggregator.aggregate_routes(preprocessed_routes)
-
-    aggregated_routes = [r for r in aggregated_routes if routeutils.get_length(r) >= 500]
-
-    route_extender: RouteExtender = RouteExtender(tolerance_dist=10)
-    
-    extended_routes: XyzRoutes = route_extender.extend(aggregated_routes)
+    aggregated_routes: XyzRoutes = RouteAggregator(tolerance_dist=10, tolerance_angle=15).aggregate_routes(preprocessed_routes)
+    extended_routes: XyzRoutes = RouteExtender(tolerance_dist=10).extend(aggregated_routes)
+    split_routes: XyzRoutes = RouteCrossroadSplitter(10, 10).split(extended_routes)
 
     viewVisualizer = RoutesVisualizer(xy_min_max)
 
-    for r2 in extended_routes:
+    for r2 in split_routes:
         viewVisualizer.add_points(r2)
 
     viewVisualizer.run()
