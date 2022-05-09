@@ -5,7 +5,7 @@ namespace GreenLightTracker.Src
 {
     class GpsLocationBuffer
     {
-        private const int BUFFER_SIZE = 300;
+        private const int BUFFER_SIZE = 50;
 
         private LinkedList<GpsLocation> m_locations = new LinkedList<GpsLocation>();
 
@@ -14,7 +14,7 @@ namespace GreenLightTracker.Src
 
         public void OnGpsLocationReceived(GpsLocation l)
         {
-            l.Timestamp = (int)Java.Lang.JavaSystem.CurrentTimeMillis();
+            l.Timestamp = Java.Lang.JavaSystem.CurrentTimeMillis();
 
             m_locations.AddLast(l);
 

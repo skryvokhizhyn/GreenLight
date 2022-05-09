@@ -58,7 +58,7 @@ namespace GreenLightTracker.Src
         public static ICollection<PathData> GetPathPointsFromLocations(IEnumerable<GpsLocation> locations, int roadTimestampDifference)
         {
             var result = new List<PathData>();
-            int prevTimestamp = -1;
+            long prevTimestamp = -1;
 
             var tempPoints = new List<GpsCoordinate>();
 
