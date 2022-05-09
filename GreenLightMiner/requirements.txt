@@ -1,0 +1,5 @@
+boto3
+pylint
+pygame
+cython==0.29.11
+kivy==1.11.1
