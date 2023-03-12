@@ -58,10 +58,10 @@ class _Window(Widget):
         elif keycode == 274:  # down
             self.__shift_y += 5
             self.draw_routes()
-        elif keycode == 270:  # +
+        elif keycode == 270 or keycode == 61:  # +
             self.__zoom_scale += _VIEW_SCROLL_ADD
             self.draw_routes()
-        elif keycode == 269:  # -
+        elif keycode == 269 or keycode == 45:  # -
             self.__zoom_scale -= _VIEW_SCROLL_ADD
             self.draw_routes()
 

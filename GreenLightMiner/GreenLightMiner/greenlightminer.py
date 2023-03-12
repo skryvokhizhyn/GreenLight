@@ -37,16 +37,18 @@ def main() -> None:
 
     preprocessed_routes = [r for r in xyz_routes if routeutils.get_length(r) >= 500]
     preprocessed_routes.sort(key=lambda r: len(r), reverse=True)
+    #preprocessed_routes = map(lambda r: routeutils.enrich_with_mid_points(r, 5), preprocessed_routes)
 
     xy_min_max = routeutils.get_routes_xy_min_max(xyz_routes)
 
-    aggregated_routes: XyzRoutes = RouteAggregator(tolerance_dist=10, tolerance_angle=15).aggregate_routes(preprocessed_routes)
-    extended_routes: XyzRoutes = RouteExtender(tolerance_dist=10).extend(aggregated_routes)
-    split_routes: XyzRoutes = RouteCrossroadSplitter(10, 10).split(extended_routes)
+    #aggregated_routes: XyzRoutes = RouteAggregator(tolerance_dist=20, tolerance_angle=15).aggregate_routes(preprocessed_routes)
+    #extended_routes: XyzRoutes = RouteExtender(tolerance_dist=10).extend(aggregated_routes)
+    #split_routes: XyzRoutes = RouteCrossroadSplitter(tolerance_dist=20, equality_dist=10).split(extended_routes)
 
     viewVisualizer = RoutesVisualizer(xy_min_max)
 
-    for r2 in split_routes:
+    #for r2 in split_routes:
+    for r2 in preprocessed_routes:
         viewVisualizer.add_points(r2)
 
     viewVisualizer.run()

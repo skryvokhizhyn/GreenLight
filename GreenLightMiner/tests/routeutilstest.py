@@ -356,3 +356,39 @@ class RouteUtilsTest_remove_not_same_direction(unittest.TestCase):
         routeutils.remove_not_same_direction(PointXyz(2, 1, 0), PointXyz(1.1, 2, 0), candidates, [rt0, rt1], 20)
 
         self.assertEqual(0, len(candidates))
+
+class RouteUtilsTest_enrich_with_mid_points(unittest.TestCase):
+    def test_nothing_to_enrich(self):
+        rt0: XyzRoute = [PointXyz(0, 0, 0), PointXyz(1, 0, 0), PointXyz(2, 0, 0)]
+
+        ert: XyzRoute = routeutils.enrich_with_mid_points(rt0, 2)
+
+        self.assertEqual(3, len(ert))
+
+    def test_enriched_each_chunk_x(self):
+        rt0: XyzRoute = [PointXyz(0, 0, 0), PointXyz(3, 0, 0), PointXyz(5, 0, 0)]
+
+        ert: XyzRoute = routeutils.enrich_with_mid_points(rt0, 1)
+
+        self.assertEqual(6, len(ert))
+
+        self.assertEqual(0, ert[0].x)
+        self.assertEqual(1, ert[1].x)
+        self.assertEqual(2, ert[2].x)
+        self.assertEqual(3, ert[3].x)
+        self.assertEqual(4, ert[4].x)
+        self.assertEqual(5, ert[5].x)
+
+    def test_enriched_chunk_y(self):
+        rt0: XyzRoute = [PointXyz(0, 0, 0), PointXyz(0, 1, 0), PointXyz(0, 5, 0)]
+
+        ert: XyzRoute = routeutils.enrich_with_mid_points(rt0, 1)
+
+        self.assertEqual(6, len(ert))
+
+        self.assertEqual(0, ert[0].y)
+        self.assertEqual(1, ert[1].y)
+        self.assertEqual(2, ert[2].y)
+        self.assertEqual(3, ert[3].y)
+        self.assertEqual(4, ert[4].y)
+        self.assertEqual(5, ert[5].y)

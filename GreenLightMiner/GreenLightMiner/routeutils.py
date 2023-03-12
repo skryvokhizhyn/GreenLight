@@ -110,6 +110,25 @@ def split_by_time(rt: GpsRoute, split_ms: int) -> GpsRoutes:
 
     return res
 
+def enrich_with_mid_points(rt: XyzRoute, step: float) -> XyzRoute:
+    i: int = 1
+    extendedRt : XyzRoute = []
+    extendedRt.append(rt[0])
+    
+    while i < len(rt):
+        while pointutils.distance(extendedRt[-1], rt[i]) > step:
+            
+            direction: PointXyz = PointXyz(rt[i].x - extendedRt[-1].x, rt[i].y - extendedRt[-1].y, rt[i].z - extendedRt[-1].z)
+            distance: float = pointutils.distance(extendedRt[-1], rt[i])
+            
+            newPoint: PointXyz = PointXyz(extendedRt[-1].x + direction.x / distance * step, extendedRt[-1].y + direction.y / distance * step, extendedRt[-1].z + direction.z / distance * step)
+
+            extendedRt.append(newPoint)
+
+        extendedRt.append(rt[i])
+        i = i + 1
+
+    return extendedRt
 
 def get_routes_xy_min_max(rts: XyzRoutes) -> XYMinMax:
     min_max = XYMinMax(100000000, 1000000000, -1000000000, -1000000000)
